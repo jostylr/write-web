@@ -21,10 +21,10 @@ http.createServer( function( req, res ) {
                     if (err) {
                         res.end("Error:" + err, 200);
                     } else {
-                        res.end("Success:" + outputi, 200);
+                        res.end("Success:" + output, 200);
                     }
                 });
             }
         });
     }
-}).listen( 8080 );
+}).listen( 8070 );
