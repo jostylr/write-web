@@ -1,0 +1,36 @@
+{
+  "name": "compiler",
+  "description": "compiling litpro programs remotely",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jostylr/compiler",
+  "author": {
+    "name": "James Taylor",
+    "email": "jostylr@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jostylr/compiler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jostylr/compiler/issues"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.12"
+  },
+  "dependencies":{
+    "express" : "^4.13.3",
+    "express-force-ssl" : "^0.3.0",
+    "body-parser" : "^1.14.2"
+  },
+  "devDependencies" : {
+    
+  },
+  "scripts" : { 
+    "test" : "node ./test.js"
+  },
+  "keywords": ["literate programming"],
+  "private": true
+
+}

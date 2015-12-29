@@ -19,6 +19,7 @@ script that does the compiling.
 * [compile.sh](#shell-script "save:")
 * [server.js](#simple-server "save:")
 
+
 ### Shell Script
 
 This is a simple script that expects to change into a directory from the first
@@ -31,7 +32,7 @@ workhorse of the compile phase.
     cd output
     git pull 
     cd ..
-    npm install
+    npm install --ignore-scripts
     node ./node_modules/.bin/litpro
     cd output
     git add .
@@ -120,6 +121,147 @@ script. Not currently being used.
 
       }).listen( 8080 );
 
+## Instructions
+
+To use this system, we follow the following conventions:
+
+1. litpro compiles the project
+2. lprc.js should have all the needed info for proper compiling
+3. the build directory should be the default of litpro
+4. for git pulling, we need a branch and that will be what is checkedout for
+   the build directory
+5. for sftp or s3 transfer, we need the access credentials. The credentials
+   are not saved.    
+
+
+## DO Writeweb
+
+Decided to run the webserver as root. Ouch, I know. But it might be more
+secure as I need root to do a bunch of stuff anyway. 
+
+So it runs the server. When a request comes in, it runs different scripts
+depending on the need. These scripts run as different users. The main script
+will go from writeweb to npm# to lit# and back to writeweb. This pulls in
+recent changes, runs npm install, runs litpro, and then pushes or sftps the
+changes. 
+
+Other scripts and tasks involve first cloning the repository, maybe saving
+hidden data. Get .checksum to start and then compare to end to know what to
+push in the case of sftp. This also tells what to delete. Good to .gitignore
+.checksum
+
+
+
+
+Use for cleaning before pulling? `git checkout -- .`
+
+
+
+
+
+
+This is my setup for running the automation of the compilation of literate
+programs from repositories. I run it on a ubuntu instance from digital ocean. 
+
+The idea is that we use multiple users. writeweb is the main user that runs
+the webserver and masquerades as other users. The writeweb user runs the webserver and does the git pulling. One
+generic will do the npm installing; it should be safe with ignore-scripts, but
+just to be double safe. Then another generic user, perhaps multiple ones for
+scaling, will do the literate programming compiling. To facilitate this, we
+chown the relevant directory to the generic user that needs it, run the
+command as that user, and 
+
+
+
+
+sudo iptables -A OUTPUT -p all -m owner --uid-owner username -j DROP
+
+
+
+### DO Instructions
+
+There are a number of things to do when setting up a droplet.
+
+    1. Create droplet with ssh-key for easy root access; remove the password
+       login to secure it. 
+    2. Install node: https://github.com/nodesource/distributions 
+        Add their ppa, do apt-get install node
+    3. Install git:  apt-get install git
+    4. Create users: writeweb, npm1-5, lit1-5
+        `useradd -options username` 
+        with -M saying no to home directory creation, -N
+        says no to being a part of a group, 
+        --quiet,  --disabled-password
+    5. Set up iptables: 
+        this prevents network access to the lit group (put them all in the lit
+        group) The npm group needs net access.
+       sudo iptables -A OUTPUT -p all -m owner --gid-owner lit -j DROP
+       http://askubuntu.com/questions/102005/disable-networking-for-specific-users
+        You also want to use iptables to reroute port 80
+
+
+As an option use iptables-save to save your current rules and restore them on boot.
+
+Save the current iptables rules
+
+sudo iptables-save > /etc/iptables_rules
+Open /etc/rc.local with your favorite text editor and at the end of the file add
+
+/sbin/iptables-restore < /etc/iptables_rules
+That will restore the saved rules on each boot.
+
+
+ssl: 
+
+openssl genrsa -out server-key.pem 1024
+openssl req -new -key server-key.pem -out server-csr.pem
+openssl x509 -req -in server-csr.pem -signkey server-key.pem -out server-cert.pem
+Then use them in node.js
+
+var https = require('https');
+https.createServer({
+    key: fs.readFileSync('server-key.pem'),
+    cert: fs.readFileSync('server-cert.pem')
+},
+function (req,res) {
+      ... 
+})
+
+also https://github.com/digitalbazaar/forge#x509
+
+
+### Root Shell Script
+
+This is the shell script that is called by the server run by root, listening
+for commands from the webserver. 
+
+Arg1 is repo, arg2 is npm, arg3 is lit
+
+    
+    chown -RP $2 $1
+    su -s /bin/bash -c "cd $1; npm install --ignore-scripts"
+    chown -RP $3 $1
+    su -s /bin/bash -c "cd $1; litpro"
+    chown -RP writeweb:writeweb $1
+
+
+http://apple.stackexchange.com/questions/82438/allow-sudo-to-another-user-without-password
+
+user1    ALL=(user2) NOPASSWD: /bin/bash
+
+http://superuser.com/questions/514922/how-to-make-a-non-root-user-to-use-chown-for-any-user-group-files
+
+nfigured /etc/sudoers file.
+
+If you want bob to be able to change the permissions and owners on the files of users fred, joe and sara, put this in your sudoers file. With this line, bob will need to use e.g. sudo -u fred chmod ... to change the permissions on fred's files.
+
+Runas_Alias  USERS = fred, joe, sara
+bob          ALL = (USERS): /bin/chmod, /bin/chown
+
+
+SSL stuff
+
+http://stackoverflow.com/questions/16533341/https-redirect-from-root-domain-i-e-apex-or-naked-to-www-subdomain-withou
 
 
 ## Destination Server
