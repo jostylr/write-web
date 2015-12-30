@@ -27,7 +27,14 @@ var cp = function (source, target) {
         console.log("failuer to copy", source, target, e.stack);
     }
 };
-var fetch = ;
+var fetch = function () {};
+var rm = function (file) {
+    try {
+        child_process.execFileSync('/bin/rm', [file]); 
+    } catch (e) {
+        console.log("failuer to remove", file, e.stack);
+    }
+};
 
 try {
     txt = fs.readFileSync("/home/writeweb/repos/" +
@@ -108,7 +115,7 @@ if (noLoad) {
     n = keys.length;
     for (i = 0; i < n; i +=1 ) {
         k = keys[i];
-        if oldloc.hasOwnProperty(add[k]) {
+        if (oldloc.hasOwnProperty(add[k])) {
             source = path + oldloc[add[k]];
             dest = pth + k;
             cp(source, dest);
@@ -123,8 +130,8 @@ if (noLoad) {
         k = keys[i];
         dest = pth + k;
         cp(dest, dest+'.bak');
-        if oldloc.hasOwnProperty(add[k]) {
-            source = path + oldloc[add[k]];
+        if (oldloc.hasOwnProperty(add[k])) {
+            source = pth + oldloc[add[k]];
             try {
                 fs.accessSync(source+'.bak'); 
                 cp(source+'.bak', dest);

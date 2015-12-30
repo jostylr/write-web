@@ -61,18 +61,81 @@ This is the main server code
     app.use(bodyParser.urlencoded());
     app.use(forceSSL);
 
-    app.get("/g", _"git push for compile"); //get for compile");
-    app.get("/r", _"rsync ssh for compile");
-
-    _"post for compile"
-
-    _"post for other"
+    _":params"
+    
+    _":routes"
 
     //static hosting
     app.use(express.static(__dirname + "/public"));
      
     secureServer.listen(443);
     server.listen(80);
+
+[params]()
+
+We act on a variety of parameters from the url. 
+
+    app.param("gituser", _"check gituser");
+    app.param("repo", 
+        _"check initialize repo directory",
+        _"check authroization needed");
+    app.param("from", _"set the branch in the repo");
+    app.parm("dest", _"get destination");
+    app.param("s3user", _"get s3 user");
+
+
+need a system for being authorized for passwordless rsync -- something like a
+file to be read from the destination that gives the repo, from, and allowed
+destinations and what writeweb users are authorized (if present, they need to
+login). Related would be ww users needing to be logged in to compile, etc.
+package.json on the ma
+
+[routes]()
+
+These are the routes that actually lead to action. 
+
+    app.get("g/:user/:repo/:from/:to", _"git push compile");
+    app.get("r/:user/:repo/:from/:dest", _"rsync compile");
+    app.post("r/:user/:repo/:from", 
+        _"rsync credentials", 
+        _"rsync compile");
+    app.get("s3/:user/:repo/:from/:s3user/:bucket", _"s3 compile");
+    app.post("s3/:user/:repo/:from", 
+        _"s3 credentials",
+        _"s3 compile");
+    app.get("edit/:user/:repo/:from", _"load directory");
+    app.post("edit/:user/:repo/:from", _"save files");
+    app.post("login", _"login");
+
+
+
+[junk]()
+
+Routers do mount points
+
+    var gitR = express.Router();
+    
+    _"git push compile"
+
+    var rsyncR =express.Router();
+
+    _"rsync compile"
+
+    var s3R = express.Router();
+
+    _"s3 compile"
+
+    var editR = express.Router();
+
+    _"edit compile"
+
+    app.use("/g", gitR);
+    app.use("/r", rsyncR);
+    app.use("/s3", s3R);
+    app.use("/edit", editR);
+
+    app.post("/login", _"login"); //this is a login as a user
+
 
 
 [about ssl]()
@@ -108,9 +171,38 @@ Simple redirecting, from https://groups.google.com/forum/#!topic/nodejs/z3kJjdPt
 
 
 
-### get for compile
+### Params
+
+Common 
+
+
+### git push compile
 
 A get for compiling is of the form /g/user/repo/frombranch/tobranch
+
+init makes sure the repo is in place. It sets the frombranch and pulls it, but
+it does not set 
+
+In the package.json file in writeweb field, under build, you can have
+"from:to": and specify build options. this will read that. 
+
+    app.get("/:user/:repo/:from/:to", function (req, res, next) {
+        
+    });
+
+### rsync compile
+
+### s3 compile
+
+### edit compile
+
+### login
+
+This takes in the login form and processes it. It could be creating a login as
+well. 
+
+
+## old git
 
 This does a litpro after pulling in the frombranch and setting up the tobranch
 in build, which it then pushes. 
@@ -118,28 +210,8 @@ in build, which it then pushes.
 So `https://www.writeweb.net/g/jostylr/mwia/master/gh-pages` would transform the
 master branch into the gh-pages branch.
 
-The req.url will come in as `/jostylr/...`
-
-    function (req, res) {
-        var pieces = req.url.slice(1).split("/");
-        if (pieces.length !== 4) {
-            _":error in form"
-        } else {
-            _":init"
-            _":compile"
-            _":report"
-        }
-    }
-
-[compile]()
-
     
 
-[report]()
-
-This sends a report of the success.
-
-    res.send("success yeah!"); 
 
 [init]()
 
@@ -147,15 +219,17 @@ This needs to figure if the repository is already loaded and, if not, load it.
 We'll keep a list of known repositories and allowed users in memory, appending
 the record files as needed. 
 
+    function (user, repo) {
+        _":check repo existence"
+        _":check folder existence"
 
-[error in form]()
+        if (!folderExist) {
+            exec("root", "initialize.sh", [user, repo], );
+        } else {
+            
+        }
 
-    res.send("error!");
 
-### post for compile
-
-This is a single url whose fields tell us what to do on post. It should have
-repo info, target place to load up to,  
 
 ### post for other
 
@@ -189,6 +263,16 @@ https://kb.iu.edu/d/aews
       cat ~/id_rsa.pub >> ~/.ssh/authorized_keys
 
 http://bencane.com/2013/07/22/ssh-disable-host-checking-for-scripts-automation/
+
+For dreamhost, the following is needed:
+
+LM> scp ~/.ssh/id_rsa.pub user@example.com:~/
+
+    RM> cat id_rsa.pub >> .ssh/authorized_keys
+    RM> rm id_rsa.pub
+    RM> chmod go-w ~
+    RM> chmod 700 ~/.ssh
+    RM> chmod 600 ~/.ssh/authorized_keys
 
 Need to think about secure authentication for a host. 
 
@@ -226,6 +310,7 @@ are to be run by writeweb.
 
 These can be in writeweb's user directory and made unwriteable by writeweb and
 ownership can be by root. 
+
 
 
 [git push]()
@@ -314,6 +399,7 @@ the build direction; no saving if there are no changes.
 
     var cp = _":copy";
     var fetch = _":fetch";
+    var rm = _":rm";
 
     _":get and parse resource.txt files"
 
@@ -443,7 +529,7 @@ the file. If not, we send it to our
     n = keys.length;
     for (i = 0; i < n; i +=1 ) {
         k = keys[i];
-        if oldloc.hasOwnProperty(add[k]) {
+        if (oldloc.hasOwnProperty(add[k])) {
             source = path + oldloc[add[k]];
             dest = pth + k;
             cp(source, dest);
@@ -465,8 +551,8 @@ original should still be around.
         k = keys[i];
         dest = pth + k;
         cp(dest, dest+'.bak');
-        if oldloc.hasOwnProperty(add[k]) {
-            source = path + oldloc[add[k]];
+        if (oldloc.hasOwnProperty(add[k])) {
+            source = pth + oldloc[add[k]];
             try {
                 fs.accessSync(source+'.bak'); 
                 cp(source+'.bak', dest);
@@ -527,6 +613,7 @@ Here we are given a url and a file name to save it in. We need to ensure that
 the total disk space is kept small so we will monitor the size of the streams.
 We also will kept the number of requests small, 
 
+    function () {}
 
 ### s3 transfer
 
@@ -609,7 +696,6 @@ But apparently it doesn't work in ubuntu. Suggestion is to do `mount -o remount,
 
 
 
-
 ### pm2
 
 Using pm2 for process management. 
@@ -662,6 +748,20 @@ This is the index page for writeweb.net
     </html>
 
 
+## User editing files
+
+If a user is authenticated and allowed to use a repo, then they can read the
+files in the repo as well as the secrets. Different color schemes for repo vs
+secrets. If they modify the repo, then they can, and should, commit/push (done
+in one step, as with prose.io). We use `git -c "user.name=..." -c "user.email=..." commit ...` to identify the right contributor.
+
+Need writeweb as collaborator to do this. 
+
+Can setup codemirror for the editing and switch to an iframe for viewing the
+test and/or live site as well as diagnostic. Think tabs at top for the view,
+maybe jsbin like as well with split views though that can be disorienting. Use
+a save command with commit message dialog. Probably also want to save locally
+the changes until a save is done. 
 
 ## NPM package
 
