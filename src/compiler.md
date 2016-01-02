@@ -266,13 +266,19 @@ http://bencane.com/2013/07/22/ssh-disable-host-checking-for-scripts-automation/
 
 For dreamhost, the following is needed:
 
-LM> scp ~/.ssh/id_rsa.pub user@example.com:~/
+```
+local maching
+scp ~/.ssh/id_rsa.pub user@example.com:~/
 
-    RM> cat id_rsa.pub >> .ssh/authorized_keys
-    RM> rm id_rsa.pub
-    RM> chmod go-w ~
-    RM> chmod 700 ~/.ssh
-    RM> chmod 600 ~/.ssh/authorized_keys
+Remote
+mkdir -p ~/.ssh
+touch ~/.ssh/authorized_keys
+cat id_rsa.pub >> ~/.ssh/authorized_keys
+rm ~/id_rsa.pub
+chmod go-w ~
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
 
 Need to think about secure authentication for a host. 
 
