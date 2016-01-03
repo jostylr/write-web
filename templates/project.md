@@ -6,12 +6,17 @@ doing whatever else is necessary.
 ## Files
 
 
-* [custom.css](#css "save: | postcss autoprefixer ")
-* [index.html](# "save:| go index.md ")
+`* [custom.css](#css "save: | postcss autoprefixer ")`
+`* [index.html](# "save:| go index.md ")`
 
 * [thumbs.js](#pdf-thumbnailing "save:")
 * This is a script that reduces the images to 450 px. [../img.js](#img-reduce "save:")  The images should be in original and it will lead to build/img.   
 
+
+Files to Load
+
+* [scripts](scripts.md "load:")
+* [html](html.md "load:")
 
 This reads in the file, splits on `---` lines, then sticks them in a doc for
 keys title, body, gal where gal is short for gallery and it gets translated
@@ -40,28 +45,58 @@ it, and then save it. It assumes the file is of the form `name.ext` and the
 arguments are of the form `final extension, initial extension, cmd1, cmd2,
 ...`
 
-A generated string ought to look like `_"|go name.md | savefile name.html"`
+A generated string ought to look like `_"|echo name.md | readfile |
+    ... | savefile name.html"`
 
     function (input, args) {
+        console.log(input);
         var path = require('path');
         bits = path.parse(input);
-        if (bits.ext !== args[1]) {
+        if (bits.ext !== args[2]) {
             return '';
         }
-        return '\_"|' + args[2] + ' ' + input + 
-            ' | savefile ' + name + args[0] + '"';
+        return '\_"|echo ' + args[0] + '/' + input + '|' + args[3] + ' '  +
+            ' | savefile ' + bits.name + args[1] + '"';
     }
-            
+
+[fileCompile](# "define:")
+
 
 [source reading]()
 
-    _"|echo pages | readdir | .mapc fileCompile .html, .md, go | 
-        .mapc compile"
+    _"|echo pages | readdir | .mapc fileCompile, pages, .html, .md, 
+        _':src compiler' | .join \n | log | compile "
 
 
-## Getting the source files
+`[src compiler](# ": | log | jsStringLine |log")`
 
-    
+[src compiler]()
+
+    readfile  
+    | .split \n---\n 
+    | defaults :css, :hero, :footer, \_'footer', :nav, \_'nav', :bottom
+    | minidoc :title, :body 
+    | .mapc .trim 
+    | .apply :body, md  
+    | log 
+    | .compile html::template 
+    | syntax 
+
+[stringing]()
+
+    function (input) {
+        return input.
+            split("\n").
+            map(function (el) {
+                return '"' + el + '"';
+            }).
+            join('+\n');
+    }
+
+[jsStringLine](# "define:")
+
+
+
 
 ## Custom Properties
 
@@ -80,6 +115,15 @@ A generated string ought to look like `_"|go name.md | savefile name.html"`
     * [Newsletters](newsletters.html)
     * [Places](places.html)
     * [Calendar](calendar.html)
+
+### Nav
+
+    * left
+    * right
+
+### Footer
+
+    Jolly old fellow
 
 
 
