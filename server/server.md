@@ -449,4 +449,8 @@ Here we alias to get the $ for qs, and we define an ajax function.
         req.send();
     };
 
+### Rsync
 
+    scp ~/.ssh/id_rsa.pub user@place:~/
+    from ssh:
+    mkdir -p ~/.ssh; touch ~/.ssh/authorized_keys;  cat ~/id_rsa.pub >> ~/.ssh/authorized_keys

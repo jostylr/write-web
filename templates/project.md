@@ -65,7 +65,7 @@ A generated string ought to look like `_"|echo name.md | readfile |
 [source reading]()
 
     _"|echo pages | readdir | .mapc fileCompile, pages, .html, .md, 
-        _':src compiler' | .join \n | log | compile "
+        _':src compiler' | .join \n | log | compile bogus"
 
 
 `[src compiler](# ": | log | jsStringLine |log")`
