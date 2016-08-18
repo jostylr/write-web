@@ -10,6 +10,15 @@ Up to date Git:  https://launchpad.net/~git-core/+archive/ubuntu/ppa
 	sudo add-apt-repository ppa:git-core/ppa
 	sudo apt-get update
 
+Also added latex for litpro compiling tex (1GB vs 4GB for texlive-full)
+
+	sudo apt-get texlive
+    
+Also pandoc (Small) and maybe even sage (large), depending. 
+
+    sudo -E apt-add-repository -y ppa:aims/sagemath
+    sudo -E apt-get update
+    sudo -E apt-get install sagemath-upstream-binary
 
 Also very similar to these is https://code.lengstorf.com/deploy-nodejs-ssl-digitalocean/ which also goes into Let's Encrypt setup
 
@@ -120,6 +129,72 @@ Default setup. The idea is that we will have a static webserver on port 8080
         } 
     }
 
+Load in pm2 and http-server usind `sudo npm install -g ...`
 
+Run http-server for main static content. Seems the https is done by nginx, not node here so that's nice. 
 
+Install githook server on 8081
 
+### Githook server
+
+This will execute every time the webhook is triggered. We act on push events (compile, send to test) and release (compile, send to production). 
+
+    var http = require('http');
+    var fs = require('fs');
+    var cp = require('child_process');
+    var path = "/home/server/public/";
+
+    this.server = http.createServer( function( req, res ) {
+        var data = "";
+        if ( req.method === "POST" ) {
+          req.on( "data", function( chunk ) {
+            data += chunk;
+          });
+        }
+
+        req.on( "end", function() {
+        	var payload, type, repo;
+            try {
+              payload = JSON.parse( data);
+              type = req.headers['x-github-event'];
+              if ( (type !== "push") && (type !== "release") ) {
+              	fs.appendFile(path + "badrequest.txt", req.rawHeaders, function() {});
+              } else {   
+				repo = payload.full_name.replace(/[^a-z-]/g, "-");
+              	cp.execFile("./compile.sh", function (err, stdout, stderr) {
+                    if (err) {
+                      fs.appendFile(path + "errorlog.txt", err, function () {});
+                    } else {
+                      fs.appendFile(path + "log.txt", "compiled " + repo + 
+                          " " + (new Date()).toUTCstring(), function () {});
+                      fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
+                      	stdout + (stderr ? "\nErr:\n" + stderr : ''), 
+                        function () {});
+                    }
+                  });
+              }
+            } catch (e) {
+              fs.appendFile("../autolog.txt", e+data, function () {});
+            }
+              res.writeHead( 200, {
+                'Content-type': 'text/html'
+              });
+
+          res.end();
+        });
+
+      }).listen( 8081 );
+     
+     
+Used curl to diagnose
+
+	curl -X POST -d @payload https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
+    
+The payload file was just a payload example from github
+      
+      
+### Compile script
+
+This is what root calls. It basically changes into different users who then do some stuff. 
+
+	
