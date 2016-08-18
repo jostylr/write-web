@@ -145,45 +145,48 @@ This will execute every time the webhook is triggered. We act on push events (co
     var path = "/home/server/public/";
 
     this.server = http.createServer( function( req, res ) {
-        var data = "";
-        if ( req.method === "POST" ) {
-          req.on( "data", function( chunk ) {
-            data += chunk;
-          });
-        }
+    var data = "";
+    if ( req.method === "POST" ) {
+      req.on( "data", function( chunk ) {
+        data += chunk;
+      });
+    } else {
+      data = {};
+    }
 
-        req.on( "end", function() {
-        	var payload, type, repo;
-            try {
-              payload = JSON.parse( data);
-              type = req.headers['x-github-event'];
-              if ( (type !== "push") && (type !== "release") ) {
-              	fs.appendFile(path + "badrequest.txt", req.rawHeaders, function() {});
-              } else {   
-				repo = payload.full_name.replace(/[^a-z-]/g, "-");
-              	cp.execFile("./compile.sh", function (err, stdout, stderr) {
-                    if (err) {
-                      fs.appendFile(path + "errorlog.txt", err, function () {});
-                    } else {
-                      fs.appendFile(path + "log.txt", "compiled " + repo + 
-                          " " + (new Date()).toUTCstring(), function () {});
-                      fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
-                      	stdout + (stderr ? "\nErr:\n" + stderr : ''), 
-                        function () {});
-                    }
-                  });
-              }
-            } catch (e) {
-              fs.appendFile("../autolog.txt", e+data, function () {});
+
+    req.on( "end", function() {
+        var payload, type, repo;
+        try {
+          payload = JSON.parse( data);
+          type = req.headers['x-github-event'];
+          if ( (type !== "push") && (type !== "release") ) {
+        fs.appendFile(path + "badrequest.txt", req.rawHeaders, function() {});
+          } else {   
+        repo = payload.repository.full_name.replace(/[^a-z\/-]/g, "-");
+        cp.execFile("./compile.sh", function (err, stdout, stderr) {
+            if (err) {
+              fs.appendFile(path + "errorlog.txt", err, function () {});
+            } else {
+              fs.appendFile(path + "log.txt", "compiled " + repo + 
+              " " + (new Date()).toUTCString(), function () {});
+              fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
+            stdout + (stderr ? "\nErr:\n" + stderr : ''), 
+            function () {});
             }
-              res.writeHead( 200, {
-                'Content-type': 'text/html'
-              });
+          });
+          }
+        } catch (e) {
+          fs.appendFile("../autolog.txt", e+data, function () {});
+        }
+          res.writeHead( 200, {
+          	'Content-type': 'text/html'
+          });
 
-          res.end();
-        });
+      res.end("<html><body><p>hook data received</p></body></html>", function () {});
+    });
 
-      }).listen( 8081 );
+    }).listen( 8081 );
      
      
 Used curl to diagnose
