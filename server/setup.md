@@ -168,7 +168,7 @@ This will execute every time the webhook is triggered. We act on push events (co
         fs.appendFile(path + "badrequest.txt", req.rawHeaders, function() {});
           } else {   
         repo = payload.repository.full_name.replace(/[^a-z\/-]/g, "-");
-        cp.execFile("./compile.sh", [repo, type], function (err, stdout, stderr) {
+        cp.execFile("./compile.sh", ["/home/repos/" + repo, type], function (err, stdout, stderr) {
             if (err) {
               fs.appendFile(path + "errorlog.txt", err, function () {});
             } else {
@@ -249,7 +249,7 @@ This needs to parse various download files
 	#!/usr/bin/env nodejs
     
     console.log("downlodaed");
-    console.err("couldn't find");
+    console.error("couldn't find");
    
 save in download in repos home dir and then 
 
@@ -261,7 +261,7 @@ save in download in repos home dir and then
 	#!/usr/bin/env nodejs
     
     console.log("uploaded ", process.argv[2]);
-    console.err("failed to upload");
+    console.error("failed to upload");
 
 save in download in repos home dir and then 
 
