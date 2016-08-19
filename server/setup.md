@@ -269,9 +269,64 @@ save in download in repos home dir and then
 
 ### run
 
+Executes litpro if no run scripts are involved. just passes along stdout and stderr
+
+The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the order in which it is to be run; it should be a non-negative integer and distinct. The `pub` or `priv` shows whether the log and errors should be reported or not; priv means no browser reporting done. 
+
+
+
 	#!/usr/bin/env nodejs
     
-    console.log("running");
+    var fs = require('fs');
+    var cp = require('child_process');
+    var exec;
+    
+    // for doing the next run
+    // do not stop for errors. this is questionable
+    var next = function (arr, i) {
+    	var file = arr[i][0];
+    	cp.execFile("./"+file, function (err, stdout, stderr) {
+        	console.log("running " + file);
+        	if (err) {
+            	console.error("Failed to run", err);
+            }
+        	if (arr[i][1] === "pub") {
+            	console.log(stdout);
+                if(stderr) {
+                	console.error(file, stderr);
+                }
+            }
+            fs.writeFile(file.replace(".sh", ".log"), "LOG:\n" + stdout + "ERROR:\n" + stderr, 
+            	function () {});
+       		if ( arr.length > (i+1) ) {
+        		next(arr, i+1);
+            }
+        });
+    
+    };
+    
+    fs.readdir(".", function (err, files) {
+      exec = [];
+      files.forEach(function (file) {
+      	var m = file.match(/run\-(\d+)\-(pub|priv)\.sh/);
+      	if (m) {
+      		exec[m[1]] = [m[0], m[2]];
+      	}
+      });
+      exec = exec.filter(function (el) {return el;}); // no gaps
+      if (exec.length) {
+      	next(exec, 0);    	
+      } else {
+        	cp.execFile("litpro", function (err, stdout, stderr) {
+            	console.log(stdout);
+                console.error(stderr);
+                fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
+            		function () {});
+            });
+      } 
+    });
+    
+    
 
 save in run in /usr/local/bin
 
