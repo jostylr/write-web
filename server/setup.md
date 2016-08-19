@@ -141,6 +141,8 @@ Install githook server on 8081
 
 This will execute every time the webhook is triggered. We act on push events (compile, send to test) and release (compile, send to production). 
 
+	#!/usr/bin/env nodejs
+
     var http = require('http');
     var fs = require('fs');
     var cp = require('child_process');
@@ -166,7 +168,7 @@ This will execute every time the webhook is triggered. We act on push events (co
         fs.appendFile(path + "badrequest.txt", req.rawHeaders, function() {});
           } else {   
         repo = payload.repository.full_name.replace(/[^a-z\/-]/g, "-");
-        cp.execFile("./compile.sh", function (err, stdout, stderr) {
+        cp.execFile("./compile.sh", [repo, type], function (err, stdout, stderr) {
             if (err) {
               fs.appendFile(path + "errorlog.txt", err, function () {});
             } else {
@@ -197,6 +199,14 @@ Used curl to diagnose
     
 The payload file was just a payload example from github
       
+### Manual trigger
+
+	curl -X POST -d @payload https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
+
+Or 
+
+	curl -X POST -d @payload https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:release" --verbose
+      
       
 ### Compile script
 
@@ -208,11 +218,15 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
 
     
     chown -RP repos $1
+    echo "download phase"
     su -s /bin/bash -l repos -c "cd $1; git pull; npm install --ignore-scripts; ~/download" 
+    echo "compile phase"
     chown -RP litpro $1
     su -s /bin/bash -l lpuser -c "cd $1; run"
+    echo "upload phase"
     chown -RP repos $1
     su -s /bin/bash -l repos -c "cd $1; ~/upload $2"
+    echo "done"
 
 
 Maybe put the run script in usr/local/bin; the other two can be in repos homedir. All should start with `#!/usr/bin/env nodejs` and be chmod +x  to become executables.
@@ -236,17 +250,29 @@ This needs to parse various download files
     
     console.log("downlodaed");
     console.err("couldn't find");
+   
+save in download in repos home dir and then 
+
+	chmod +x download
 
 
 ### upload
 
 	#!/usr/bin/env nodejs
     
-    console.log("uploaded");
+    console.log("uploaded ", process.argv[2]);
     console.err("failed to upload");
+
+save in download in repos home dir and then 
+
+	chmod +x upload
 
 ### run
 
 	#!/usr/bin/env nodejs
     
     console.log("running");
+
+save in run in /usr/local/bin
+
+	chmod +x run
