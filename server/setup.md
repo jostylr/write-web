@@ -20,6 +20,8 @@ Also pandoc (Small) and maybe even sage (large), depending.
     sudo -E apt-get update
     sudo -E apt-get install sagemath-upstream-binary
 
+Node setup https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04
+
 Also very similar to these is https://code.lengstorf.com/deploy-nodejs-ssl-digitalocean/ which also goes into Let's Encrypt setup
 
 Up to date Nodejs: 
