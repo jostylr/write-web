@@ -221,7 +221,7 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
     echo "download phase"
     su -s /bin/bash -l repos -c "cd $1; git pull; npm install --ignore-scripts; ~/download" 
     echo "compile phase"
-    chown -RP litpro $1
+    chown -RP lpuser $1
     su -s /bin/bash -l lpuser -c "cd $1; run"
     echo "upload phase"
     chown -RP repos $1
