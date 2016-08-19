@@ -202,4 +202,15 @@ The payload file was just a payload example from github
 
 This is what root calls. It basically changes into different users who then do some stuff. 
 
+The repos user has network access. It pulls in the repository, installs npm modules, and downloads stuff. All of this is managed.
+
+Then we switch to user litpro. This has no network access. It 
+
+    
+    chown -RP repos $1
+    su -s /bin/bash -l repos -c "cd $1; git pull; npm install --ignore-scripts; download" 
+    chown -RP litpro $1
+    su -s /bin/bash -l litpro -c "cd $1; litpro"
+    chown -RP repos $1
+    su -s /bin/bash -l litpro -c "cd $1; upload $2"
 	
