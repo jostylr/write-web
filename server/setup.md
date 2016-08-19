@@ -204,13 +204,49 @@ This is what root calls. It basically changes into different users who then do s
 
 The repos user has network access. It pulls in the repository, installs npm modules, and downloads stuff. All of this is managed.
 
-Then we switch to user litpro. This has no network access. It 
+Then we switch to user litpro. This has no network access. It runs litpro typically unless there is the presence of scripts of the form run-i-pub/priv.sh  So a node process runs each of them and if pub is in place, them it becomes public. 
 
     
     chown -RP repos $1
-    su -s /bin/bash -l repos -c "cd $1; git pull; npm install --ignore-scripts; download" 
+    su -s /bin/bash -l repos -c "cd $1; git pull; npm install --ignore-scripts; ~/download" 
     chown -RP litpro $1
-    su -s /bin/bash -l litpro -c "cd $1; litpro"
+    su -s /bin/bash -l lpuser -c "cd $1; run"
     chown -RP repos $1
-    su -s /bin/bash -l litpro -c "cd $1; upload $2"
-	
+    su -s /bin/bash -l repos -c "cd $1; ~/upload $2"
+
+
+Maybe put the run script in usr/local/bin; the other two can be in repos homedir. All should start with `#!/usr/bin/env nodejs` and be chmod +x  to become executables.
+
+### Setting up the users
+
+We want two users. The first is repos. This is a fairly normal user, ideally as secure as all of our users. This will handle network needs, such as git pull, downloading and uploading. What it can do is strictly controlled; no user code is run. 
+
+The other user is lpuser. Network access is disabled for this user and the only directory it can see should be the repo directory being compiled at the time. While some effort of restriction is made here, this is not robust against threat actors. Make sure git repos are secure. In particular, while there can be secret stuff that is not in the repo, it can be accessed by the litpro program that could be run. So some level of trust is needed. One should assume that secret stuff is just dark, not actually securely hidden.
+
+	adduser --disabled-password repos
+    adduser --disabled-password -N lpuser
+    
+    
+    
+### download
+
+This needs to parse various download files 
+
+	#!/usr/bin/env nodejs
+    
+    console.log("downlodaed");
+    console.err("couldn't find");
+
+
+### upload
+
+	#!/usr/bin/env nodejs
+    
+    console.log("uploaded");
+    console.err("failed to upload");
+
+### run
+
+	#!/usr/bin/env nodejs
+    
+    console.log("running");
