@@ -17,11 +17,12 @@ Here we setup the scripts and where they go. This section produces a shell scrip
     su repos -c "chmod +x download; cp download ~"
     
  * [disperse.sh](# "save:")
- * [githook.js](#githook "save:")
+ * [githook.js](#githook-server "save: ")
  * [compile.sh](#compile-script "save:")
- * [run](#run "save:")
+ * [run](#run "save: ")
  * [upload](#upload "save:")
  * [download](#download "save:")
+
 
 
 ## DO notes
@@ -302,8 +303,10 @@ Executes litpro if no run scripts are involved. just passes along stdout and std
 The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the order in which it is to be run; it should be a non-negative integer and distinct. The `pub` or `priv` shows whether the log and errors should be reported or not; priv means no browser reporting done. 
 
 
-
 	#!/usr/bin/env nodejs
+    _":script | jshint"
+
+[script]() 
     
     var fs = require('fs');
     var cp = require('child_process');
@@ -355,7 +358,3 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
     });
     
     
-
-save in run in /usr/local/bin
-
-	chmod +x run
