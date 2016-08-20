@@ -9,6 +9,7 @@ Here we setup the scripts and where they go. This section produces a shell scrip
 
     chmod +x githook.js
     cp githook.js ~/serving/githook.js
+    pm2 restart githook.js
     chmod +x compile.sh
     cp compile.sh ~/serving/compile.sh
     chmod +x run
