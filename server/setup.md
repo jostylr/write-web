@@ -201,11 +201,15 @@ The payload file was just a payload example from github
       
 ### Manual trigger
 
-	curl -X POST -d @payload https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
+	curl -X POST -d '{ "repository" : { "full_name": "owner/repository"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
+    
+where the owner/repository should be replaced. 
+
+	curl -X POST -d '{ "repository" : { "full_name": "jostylr/write-web"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
 
 Or 
 
-	curl -X POST -d @payload https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:release" --verbose
+	curl -X POST -d '{ "repository" : { "full_name": "owner/repository"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:release" --verbose
       
       
 ### Compile script
@@ -235,12 +239,14 @@ Maybe put the run script in usr/local/bin; the other two can be in repos homedir
 
 We want two users. The first is repos. This is a fairly normal user, ideally as secure as all of our users. This will handle network needs, such as git pull, downloading and uploading. What it can do is strictly controlled; no user code is run. 
 
-The other user is lpuser. Network access is disabled for this user and the only directory it can see should be the repo directory being compiled at the time. While some effort of restriction is made here, this is not robust against threat actors. Make sure git repos are secure. In particular, while there can be secret stuff that is not in the repo, it can be accessed by the litpro program that could be run. So some level of trust is needed. One should assume that secret stuff is just dark, not actually securely hidden.
+The other user is lpuser. The only directory it can see should be the repo directory being compiled at the time. While some effort of restriction is made here, this is not robust against threat actors. Make sure git repos are secure. In particular, while there can be secret stuff that is not in the repo, it can be accessed by the litpro program that could be run. So some level of trust is needed. One should assume that secret stuff is just dark, not actually securely hidden.
 
-	adduser --disabled-password repos
-    adduser --disabled-password -N lpuser
+	sudo adduser --disabled-password repos
+    sudo adduser --disabled-password -N lpuser
     
-    
+
+Note lpuser not having network access could be a good idea, but that requires some iptables which means switching from ufw to iptables or something. ugh. Also, not sure how useful it is. Have to think about it. 
+
     
 ### download
 
@@ -257,6 +263,8 @@ save in download in repos home dir and then
 
 
 ### upload
+
+This is the upload script. It is very simple, relying on sync commands called in another file, namely in user-repo-push|release.sh in the directory repos/uploads  This is manually maintained
 
 	#!/usr/bin/env nodejs
     
