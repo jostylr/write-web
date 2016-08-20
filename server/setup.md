@@ -229,7 +229,7 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
     su -s /bin/bash -l lpuser -c "cd $1; run"
     echo "upload phase"
     chown -RP repos $1
-    su -s /bin/bash -l repos -c "cd $1; ~/upload $2"
+    su -s /bin/bash -l repos -c "cd $1; ~/upload $1 $2"
     echo "done"
 
 
@@ -264,7 +264,7 @@ save in download in repos home dir and then
 
 ### upload
 
-This is the upload script. It is very simple, relying on sync commands called in another file, namely in user-repo-push|release.sh in the directory repos/uploads  This is manually maintained
+This is the upload script. It is very simple, relying on sync commands called in another file, namely in user-repo-push|release.sh in the directory repos/uploads  This is manually maintained and not in a repo as it has secure access and possibly secure information. 
 
 	#!/usr/bin/env nodejs
     
