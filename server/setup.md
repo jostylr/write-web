@@ -5,16 +5,18 @@ This is the server-side of processing it all. It creates a bunch of nodejs scrip
 
 ## Script Dispersal
 
-Here we setup the scripts and where they go. This section produces a shell script that copies the files to various places in the system. Use it with `pushd /home/repos/jostylr/writeweb/build; chmod +x disperse.sh; ./disperse; popd`
+Here we setup the scripts and where they go. This section produces a shell script that copies the files to various places in the system. Use it with `pushd /home/repos/jostylr/write-web/build; chmod +x disperse.sh; ./disperse; popd`
 
     chmod +x githook.js
-	cp githook.js ~/serving/githook.js
+    cp githook.js ~/serving/githook.js
     chmod +x compile.sh
     cp compile.sh ~/serving/compile.sh
     chmod +x run
     cp run /usr/local/bin/run
     su repos -c "chmod +x upload; cp upload ~"
     su repos -c "chmod +x download; cp download ~"
+    
+---    
     
  * [disperse.sh](# "save:")
  * [githook.js](#githook-server "save: ")
@@ -34,12 +36,12 @@ Uses keys for ssh, sets up user, disables password login, sets up firewall
 
 Up to date Git:  https://launchpad.net/~git-core/+archive/ubuntu/ppa
 
-	sudo add-apt-repository ppa:git-core/ppa
-	sudo apt-get update
+    sudo add-apt-repository ppa:git-core/ppa
+    sudo apt-get update
 
 Also added latex for litpro compiling tex (1GB vs 4GB for texlive-full)
 
-	sudo apt-get texlive
+    sudo apt-get texlive
     
 Also pandoc (Small) and maybe even sage (large), depending. 
 
@@ -52,22 +54,22 @@ Node setup https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node
 Also very similar to these is https://code.lengstorf.com/deploy-nodejs-ssl-digitalocean/ which also goes into Let's Encrypt setup
 
 Up to date Nodejs: 
-	
+    
     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 
 Let's Encrypt:
 
-	# Install tools that Let’s Encrypt requires
-	sudo apt-get install bc
+    # Install tools that Let’s Encrypt requires
+    sudo apt-get install bc
 
-	# Clone the Let’s Encrypt repository to your server
-	sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencry
+    # Clone the Let’s Encrypt repository to your server
+    sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencry
 
-	# Move into the Let’s Encrypt directory
-	cd /opt/letsencrypt
+    # Move into the Let’s Encrypt directory
+    cd /opt/letsencrypt
 
-	# Create the SSL certificate
-	./letsencrypt-auto certonly --standalone
+    # Create the SSL certificate
+    ./letsencrypt-auto certonly --standalone
 
 And do renewals: 
 
@@ -80,20 +82,20 @@ Install nginx, create sites, getting rid of default
 
 To put back or understand:
 
-	ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 
 Some security mumbo-jumbo
 
-	sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+    sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
  
 and then
 
-	sudo nano /etc/nginx/snippets/ssl-params.conf
+    sudo nano /etc/nginx/snippets/ssl-params.conf
     
 with 
 
-	# See https://cipherli.st/ for details on this configuration
+    # See https://cipherli.st/ for details on this configuration
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
     ssl_prefer_server_ciphers on;
     ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
@@ -114,7 +116,7 @@ with
 
 Default setup. The idea is that we will have a static webserver on port 8080
 
-	# HTTP — redirect all traffic to HTTPS
+    # HTTP — redirect all traffic to HTTPS
     server {
         listen 80;
         listen [::]:80 default_server ipv6only=on;
@@ -168,7 +170,7 @@ Install githook server on 8081
 
 This will execute every time the webhook is triggered. We act on push events (compile, send to test) and release (compile, send to production). 
 
-	#!/usr/bin/env nodejs
+    #!/usr/bin/env nodejs
 
     var http = require('http');
     var fs = require('fs');
@@ -211,7 +213,7 @@ This will execute every time the webhook is triggered. We act on push events (co
           fs.appendFile("../autolog.txt", e+data, function () {});
         }
           res.writeHead( 200, {
-          	'Content-type': 'text/html'
+              'Content-type': 'text/html'
           });
 
       res.end("<html><body><p>hook data received</p></body></html>", function () {});
@@ -222,15 +224,15 @@ This will execute every time the webhook is triggered. We act on push events (co
       
 ### Manual trigger
 
-	curl -X POST -d '{ "repository" : { "full_name": "owner/repository"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
+    curl -X POST -d '{ "repository" : { "full_name": "owner/repository"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
     
 where the owner/repository should be replaced. 
 
-	curl -X POST -d '{ "repository" : { "full_name": "jostylr/write-web"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
+    curl -X POST -d '{ "repository" : { "full_name": "jostylr/write-web"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
 
 Or 
 
-	curl -X POST -d '{ "repository" : { "full_name": "owner/repository"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:release" --verbose
+    curl -X POST -d '{ "repository" : { "full_name": "owner/repository"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:release" --verbose
       
       
 ### Compile script
@@ -262,7 +264,7 @@ We want two users. The first is repos. This is a fairly normal user, ideally as 
 
 The other user is lpuser. The only directory it can see should be the repo directory being compiled at the time. While some effort of restriction is made here, this is not robust against threat actors. Make sure git repos are secure. In particular, while there can be secret stuff that is not in the repo, it can be accessed by the litpro program that could be run. So some level of trust is needed. One should assume that secret stuff is just dark, not actually securely hidden.
 
-	sudo adduser --disabled-password repos
+    sudo adduser --disabled-password repos
     sudo adduser --disabled-password -N lpuser
     
 
@@ -273,28 +275,28 @@ Note lpuser not having network access could be a good idea, but that requires so
 
 This needs to parse various download files 
 
-	#!/usr/bin/env nodejs
+    #!/usr/bin/env nodejs
     
     console.log("downlodaed");
     console.error("couldn't find");
    
 save in download in repos home dir and then 
 
-	chmod +x download
+    chmod +x download
 
 
 ### upload
 
 This is the upload script. It is very simple, relying on sync commands called in another file, namely in user-repo-push|release.sh in the directory repos/uploads  This is manually maintained and not in a repo as it has secure access and possibly secure information. 
 
-	#!/usr/bin/env nodejs
+    #!/usr/bin/env nodejs
     
     console.log("uploaded ", process.argv[2]);
     console.error("failed to upload");
 
 save in download in repos home dir and then 
 
-	chmod +x upload
+    chmod +x upload
 
 ### run
 
@@ -303,7 +305,7 @@ Executes litpro if no run scripts are involved. just passes along stdout and std
 The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the order in which it is to be run; it should be a non-negative integer and distinct. The `pub` or `priv` shows whether the log and errors should be reported or not; priv means no browser reporting done. 
 
 
-	#!/usr/bin/env nodejs
+    #!/usr/bin/env nodejs
     _":script | jshint"
 
 [script]() 
@@ -315,22 +317,22 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
     // for doing the next run
     // do not stop for errors. this is questionable
     var next = function (arr, i) {
-    	var file = arr[i][0];
-    	cp.execFile("./"+file, function (err, stdout, stderr) {
-        	console.log("running " + file);
-        	if (err) {
-            	console.error("Failed to run", err);
+        var file = arr[i][0];
+        cp.execFile("./"+file, function (err, stdout, stderr) {
+            console.log("running " + file);
+            if (err) {
+                console.error("Failed to run", err);
             }
-        	if (arr[i][1] === "pub") {
-            	console.log(stdout);
+            if (arr[i][1] === "pub") {
+                console.log(stdout);
                 if(stderr) {
-                	console.error(file, stderr);
+                    console.error(file, stderr);
                 }
             }
             fs.writeFile(file.replace(".sh", ".log"), "LOG:\n" + stdout + "ERROR:\n" + stderr, 
-            	function () {});
-       		if ( arr.length > (i+1) ) {
-        		next(arr, i+1);
+                function () {});
+           	if ( arr.length > (i+1) ) {
+            	next(arr, i+1);
             }
         });
     
@@ -339,20 +341,20 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
     fs.readdir(".", function (err, files) {
       exec = [];
       files.forEach(function (file) {
-      	var m = file.match(/run\-(\d+)\-(pub|priv)\.sh/);
-      	if (m) {
-      		exec[m[1]] = [m[0], m[2]];
-      	}
+          var m = file.match(/run\-(\d+)\-(pub|priv)\.sh/);
+          if (m) {
+          	exec[m[1]] = [m[0], m[2]];
+          }
       });
       exec = exec.filter(function (el) {return el;}); // no gaps
       if (exec.length) {
-      	next(exec, 0);    	
+          next(exec, 0);    	
       } else {
-        	cp.execFile("litpro", function (err, stdout, stderr) {
-            	console.log(stdout);
+            cp.execFile("litpro", function (err, stdout, stderr) {
+                console.log(stdout);
                 console.error(stderr);
                 fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
-            		function () {});
+                	function () {});
             });
       } 
     });
