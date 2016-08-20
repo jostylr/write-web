@@ -171,6 +171,9 @@ Install githook server on 8081
 This will execute every time the webhook is triggered. We act on push events (compile, send to test) and release (compile, send to production). 
 
     #!/usr/bin/env nodejs
+    _":script | jshint"
+
+[script]() 
 
     var http = require('http');
     var fs = require('fs');
@@ -276,13 +279,13 @@ Note lpuser not having network access could be a good idea, but that requires so
 This needs to parse various download files 
 
     #!/usr/bin/env nodejs
-    
+    _":script | jshint"
+
+[script]() 
+
     console.log("downlodaed");
     console.error("couldn't find");
    
-save in download in repos home dir and then 
-
-    chmod +x download
 
 
 ### upload
@@ -290,13 +293,12 @@ save in download in repos home dir and then
 This is the upload script. It is very simple, relying on sync commands called in another file, namely in user-repo-push|release.sh in the directory repos/uploads  This is manually maintained and not in a repo as it has secure access and possibly secure information. 
 
     #!/usr/bin/env nodejs
+    _":script | jshint"
+
+[script]() 
     
     console.log("uploaded ", process.argv[2]);
     console.error("failed to upload");
-
-save in download in repos home dir and then 
-
-    chmod +x upload
 
 ### run
 
