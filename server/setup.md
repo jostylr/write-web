@@ -5,11 +5,11 @@ This is the server-side of processing it all. It creates a bunch of nodejs scrip
 
 ## Script Dispersal
 
-Here we setup the scripts and where they go. This section produces a shell script that copies the files to various places in the system. Use it with `pushd /home/repos/jostylr/write-web/build; chmod +x disperse.sh; ./disperse; popd`
+Here we setup the scripts and where they go. This section produces a shell script that copies the files to various places in the system. Use it with `pushd /home/repos/jostylr/write-web/build; chmod +x disperse.sh; ./disperse.sh; popd`
 
     chmod +x githook.js
     cp githook.js ~/serving/githook.js
-    pm2 restart githook.js
+    pm2 restart githook
     chmod +x compile.sh
     cp compile.sh ~/serving/compile.sh
     chmod +x run
