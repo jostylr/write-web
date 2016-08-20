@@ -1,6 +1,32 @@
 # Setup
 
-This is some notes on setting up the server on Digital Ocean. 
+This is the server-side of processing it all. It creates a bunch of nodejs scripts and shell scripts that can then be distributed as needed. 
+
+
+## Script Dispersal
+
+Here we setup the scripts and where they go. This section produces a shell script that copies the files to various places in the system. Use it with `pushd /home/repos/jostylr/writeweb/build; chmod +x disperse.sh; ./disperse; popd`
+
+    chmod +x githook.js
+	cp githook.js ~/serving/githook.js
+    chmod +x compile.sh
+    cp compile.sh ~/serving/compile.sh
+    chmod +x run
+    cp run /usr/local/bin/run
+    su repos -c "chmod +x upload; cp upload ~"
+    su repos -c "chmod +x download; cp download ~"
+    
+ * [disperse.sh](# "save:")
+ * [githook.js](#githook "save:")
+ * [compile.sh](#compile-script "save:")
+ * [run](#run "save:")
+ * [upload](#upload "save:")
+ * [download](#download "save:")
+
+
+## DO notes
+
+This is some notes on setting up the server on Digital Ocean. This could become 
 
 Follow the steps at https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04
 Uses keys for ssh, sets up user, disables password login, sets up firewall
@@ -191,13 +217,7 @@ This will execute every time the webhook is triggered. We act on push events (co
     });
 
     }).listen( 8081 );
-     
-     
-Used curl to diagnose
-
-	curl -X POST -d @payload https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:push" --verbose
-    
-The payload file was just a payload example from github
+         
       
 ### Manual trigger
 
