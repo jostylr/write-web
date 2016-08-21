@@ -319,7 +319,7 @@ Pretty similar. First install the tool
 	sudo apt-get install python-pip
     sudo pip install awscli
    
-You 
+You can then do sync using  
    
 
 
