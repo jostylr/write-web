@@ -179,7 +179,7 @@ This will execute every time the webhook is triggered. We act on push events (co
     var http = require('http');
     var fs = require('fs');
     var cp = require('child_process');
-    var path = "/home/server/public/";
+    var path = "root/public";
 
     this.server = http.createServer( function( req, res ) {
     var data = "";
@@ -214,7 +214,7 @@ This will execute every time the webhook is triggered. We act on push events (co
           });
           }
         } catch (e) {
-          fs.appendFile("../autolog.txt", e+data, function () {});
+          fs.appendFile(path + "autolog.txt", e+data, function () {});
         }
           res.writeHead( 200, {
               'Content-type': 'text/html'
