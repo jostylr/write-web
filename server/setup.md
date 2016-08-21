@@ -301,6 +301,28 @@ This is the upload script. It is very simple, relying on sync commands called in
     console.log("uploaded ", process.argv[2]);
     console.error("failed to upload");
 
+#### Setting up rsync
+
+To set up rsync,  you need to create a key pair for repos:  `ssh-keygen -t rsa` in repos home directory. 
+
+Then use `ssh-copy-id -i ~/.ssh/id_rsa.pub username@remote_host`
+
+After that, you can use an rsync command like `rsync -rtv --exclude .git  --exclude .checkum . user@remote`  
+
+The upload will execute it in the build directory. Replace the . with a subdir if desired
+
+
+#### Setting up amazon sync
+
+Pretty similar. First install the tool
+
+	sudo apt-get install python-pip
+    sudo pip install awscli
+   
+You 
+   
+
+
 ### run
 
 Executes litpro if no run scripts are involved. just passes along stdout and stderr
@@ -361,5 +383,6 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
             });
       } 
     });
+    
     
     
