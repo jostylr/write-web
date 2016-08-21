@@ -345,14 +345,18 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
     var next = _":next";
     
     fs.readdir(".", function (err, files) {
-          _":custom run"
+       _":check custom run"
+      if (exec.length) {
+        next(exec, 0);   
       } else {
           _":default"
       } 
     });
 
 
-[custom run]()
+
+
+[check for custom run]()
 
 This is where we can run our custom commands. The default is 
 
@@ -364,8 +368,7 @@ This is where we can run our custom commands. The default is
       }
     });
     exec = exec.filter(function (el) {return el;}); // no gaps
-    if (exec.length) {
-      next(exec, 0);    	
+ 	
     }
 
 [next]()
@@ -402,6 +405,7 @@ running of litpro). So we run `litpro -s . -b . setup.md` to run the setup.md
 literate programming and src it to this directory and the build as well. Then we
 npm install and finish off with the litpro run. 
 
+
     cp.execFile("litpro -s . -b . lprc.js; npm install; litpro", function (err, stdout, stderr) {
         console.log(stdout);
         console.error(stderr);
@@ -409,9 +413,8 @@ npm install and finish off with the litpro run.
             function () {});
     });
 
-
-
 npm install does run scripts which could be dangerous. It is important to
 inspect the scripts carefully but lpuser running these should limit their damage
 to the repo under consideration. 
+
 
