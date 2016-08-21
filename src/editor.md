@@ -8,4 +8,10 @@ This file creates an editor backend which can be routed by nginx via do.jostylr.
 
 It should have automated saving to the server every minute in a distinct directory of some kind. When actually saved, it asks for change log and whether to commit. It saves it to disk and possibly pushes. Hopefully it all works out. 
 
-Going to be sketchy initially. 
+Going to be sketchy initially.
+
+
+
+Tip on upload of pictures: https://tonyspiro.com/uploading-resizing-images-fly-node-js-express/
+
+Need also to deal with text editing (code mirror -- submit form, need password stuff).  
