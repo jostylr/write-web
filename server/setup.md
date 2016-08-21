@@ -345,7 +345,7 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
     var next = _":next";
     
     fs.readdir(".", function (err, files) {
-       _":check custom run"
+       _":check for custom run"
       if (exec.length) {
         next(exec, 0);   
       } else {
