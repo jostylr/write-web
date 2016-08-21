@@ -250,10 +250,10 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
     
     chown -RP repos $1
     echo "download phase"
-    su -s /bin/bash -l repos -c "cd $1; git pull; npm install --ignore-scripts; ~/download" 
+    su -s /bin/bash -l repos -c "cd $1; git pull; ~/download"
     echo "compile phase"
     chown -RP lpuser $1
-    su -s /bin/bash -l lpuser -c "cd $1; run"
+    su -s /bin/bash -l lpuser -c "cd $1; npm install; run"
     echo "upload phase"
     chown -RP repos $1
     su -s /bin/bash -l repos -c "cd $1; ~/upload $1 $2"
@@ -261,6 +261,8 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
 
 
 Maybe put the run script in usr/local/bin; the other two can be in repos homedir. All should start with `#!/usr/bin/env nodejs` and be chmod +x  to become executables.
+
+The `npm install` is potentially dangerous as this runs install scripts. For example, node-sass requires install scripts. To limit the possible damage, we limit the running to lpuser. This takes advantage of lpuser having network access.
 
 ### Setting up the users
 
@@ -383,6 +385,3 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
             });
       } 
     });
-    
-    
-    
