@@ -402,13 +402,14 @@ running of litpro). So we run `litpro -s . -b . setup.md` to run the setup.md
 literate programming and src it to this directory and the build as well. Then we
 npm install and finish off with the litpro run. 
 
-
     cp.execFile("litpro -s . -b . lprc.js; npm install; litpro", function (err, stdout, stderr) {
-	console.log(stdout);
-	console.error(stderr);
-	fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
-		function () {});
+        console.log(stdout);
+        console.error(stderr);
+        fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
+            function () {});
     });
+
+
 
 npm install does run scripts which could be dangerous. It is important to
 inspect the scripts carefully but lpuser running these should limit their damage
