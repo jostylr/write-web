@@ -253,7 +253,7 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
     su -s /bin/bash -l repos -c "cd $1; git pull; ~/download"
     echo "compile phase"
     chown -RP lpuser $1
-    su -s /bin/bash -l lpuser -c "cd $1; npm install; run"
+    su -s /bin/bash -l lpuser -c "cd $1; run"
     echo "upload phase"
     chown -RP repos $1
     su -s /bin/bash -l repos -c "cd $1; ~/upload $1 $2"
@@ -262,7 +262,6 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
 
 Maybe put the run script in usr/local/bin; the other two can be in repos homedir. All should start with `#!/usr/bin/env nodejs` and be chmod +x  to become executables.
 
-The `npm install` is potentially dangerous as this runs install scripts. For example, node-sass requires install scripts. To limit the possible damage, we limit the running to lpuser. This takes advantage of lpuser having network access.
 
 ### Setting up the users
 
@@ -343,7 +342,37 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
     
     // for doing the next run
     // do not stop for errors. this is questionable
-    var next = function (arr, i) {
+    var next = _":next";
+    
+    fs.readdir(".", function (err, files) {
+          _":custom run"
+      } else {
+          _":default"
+      } 
+    });
+
+
+[custom run]()
+
+This is where we can run our custom commands. The default is 
+
+    exec = [];
+    files.forEach(function (file) {
+      var m = file.match(/run\-(\d+)\-(pub|priv)\.sh/);
+      if (m) {
+        exec[m[1]] = [m[0], m[2]];
+      }
+    });
+    exec = exec.filter(function (el) {return el;}); // no gaps
+    if (exec.length) {
+      next(exec, 0);    	
+    }
+
+[next]()
+
+This executes through the different run commands. 
+
+    function (arr, i) {
         var file = arr[i][0];
         cp.execFile("./"+file, function (err, stdout, stderr) {
             console.log("running " + file);
@@ -363,25 +392,25 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
             }
         });
     
-    };
-    
-    fs.readdir(".", function (err, files) {
-      exec = [];
-      files.forEach(function (file) {
-          var m = file.match(/run\-(\d+)\-(pub|priv)\.sh/);
-          if (m) {
-          	exec[m[1]] = [m[0], m[2]];
-          }
-      });
-      exec = exec.filter(function (el) {return el;}); // no gaps
-      if (exec.length) {
-          next(exec, 0);    	
-      } else {
-            cp.execFile("litpro", function (err, stdout, stderr) {
-                console.log(stdout);
-                console.error(stderr);
-                fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
-                	function () {});
-            });
-      } 
+    }
+
+[default]()
+
+The default takes the approach that there is a setup.md file which installs the
+basic running components (package.json for npm install, lprc.js for custom
+running of litpro). So we run `litpro -s . -b . setup.md` to run the setup.md
+literate programming and src it to this directory and the build as well. Then we
+npm install and finish off with the litpro run. 
+
+
+    cp.execFile("litpro -s . -b . lprc.js; npm install; litpro", function (err, stdout, stderr) {
+	console.log(stdout);
+	console.error(stderr);
+	fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
+		function () {});
     });
+
+npm install does run scripts which could be dangerous. It is important to
+inspect the scripts carefully but lpuser running these should limit their damage
+to the repo under consideration. 
+
