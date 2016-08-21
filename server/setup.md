@@ -179,7 +179,7 @@ This will execute every time the webhook is triggered. We act on push events (co
     var http = require('http');
     var fs = require('fs');
     var cp = require('child_process');
-    var path = "root/public";
+    var path = "/root/public/";
 
     this.server = http.createServer( function( req, res ) {
     var data = "";
@@ -236,7 +236,7 @@ where the owner/repository should be replaced.
 
 Or 
 
-    curl -X POST -d '{ "repository" : { "full_name": "owner/repository"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:release" --verbose
+    curl -X POST -d '{ "repository" : { "full_name": "jostylr/write-web"}}' https://do.jostylr.com/webhook --header "Content-Type:application/json" --header "X-GitHub-Event:release" --verbose
       
       
 ### Compile script
