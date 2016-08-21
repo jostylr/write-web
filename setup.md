@@ -10,7 +10,7 @@
 
     };
 
-[../lprc.js](# "save:")
+[lprc.js](# "save:")
 
 ## NPM package
 
@@ -53,13 +53,13 @@ The requisite npm package file.
     }
 
 
-[../package.json](# "save:")
+[package.json](# "save:")
 
 # .gitignore
 
     node_modules
 
-[../.gitignore](# "save:")
+[.gitignore](# "save:")
 
 
 by [James Taylor](https://github.com/jostylr "npminfo: jostylr@gmail.com ; 
