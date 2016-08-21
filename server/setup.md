@@ -206,7 +206,7 @@ This will execute every time the webhook is triggered. We act on push events (co
               fs.appendFile(path + "errorlog.txt", err, function () {});
             } else {
               fs.appendFile(path + "log.txt", "compiled " + repo + 
-              " " + (new Date()).toUTCString(), function () {});
+              " " + (new Date()).toUTCString()+"\n", function () {});
               fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
             stdout + (stderr ? "\nErr:\n" + stderr : ''), 
             function () {});
