@@ -404,7 +404,7 @@ literate programming and src it to this directory and the build as well. Then we
 npm install and finish off with the litpro run. 
 
 
-    cp.execFile("litpro -s . -b . setup.md; npm install; litpro", function (err, stdout, stderr) {
+    cp.exec("litpro -s . -b . setup.md; npm install; litpro", function (err, stdout, stderr) {
         console.log(stdout);
         console.error(stderr);
         fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
