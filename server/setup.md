@@ -368,8 +368,6 @@ This is where we can run our custom commands. The default is
       }
     });
     exec = exec.filter(function (el) {return el;}); // no gaps
- 	
-    }
 
 [next]()
 
