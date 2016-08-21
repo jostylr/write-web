@@ -414,6 +414,11 @@ npm install and finish off with the litpro run.
 
 npm install does run scripts which could be dangerous. It is important to
 inspect the scripts carefully but lpuser running these should limit their damage
-to the repo under consideration. 
+to the repo under consideration.
 
 
+### NPM update
+
+https://www.npmjs.com/package/npm-check-updates
+
+This a simple tool for checking update status of packages. 
