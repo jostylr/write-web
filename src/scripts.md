@@ -349,7 +349,7 @@ This will separate the instruction file, in the instructions directory of the re
         }
     }
     if (type === '') {
-        console.log("no instructions found for process.argv[3];
+        console.log("no instructions found for " + process.argv[3]);
     }
 
 [act]()
