@@ -323,7 +323,8 @@ This will separate the instruction file, in the instructions directory of the re
     var cp = require('child_process');
     
     var repo = process.argv[2];
-    var upfile = repo.replace("/", "-")+".txt"; //should just be one slash
+    //should just be one slash after removing hardcoded front path
+    var upfile = repo.replace('/home/repos/', '').replace("/", "-")+".txt"; 
     var type = process.argv[3];
     
     var inst = fs.readFileSync('/home/repos/instructions/' + upfile, {encoding:'utf8'});
