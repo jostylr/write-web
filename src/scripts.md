@@ -328,7 +328,7 @@ This will separate the instruction file, in the instructions directory of the re
     var type = process.argv[3];
     
     var inst = fs.readFileSync('/home/repos/instructions/' + upfile, {encoding:'utf8'});
-    var parts = inst.split("---");
+    var parts = inst.split("\n---\n");
     var actions = {};
     parts.forEach(function (el) {
         var lines = el.split("\n");
@@ -377,7 +377,7 @@ To set up rsync,  you need to create a key pair for repos:  `ssh-keygen -t rsa` 
 
 Then use `ssh-copy-id -i ~/.ssh/id_rsa.pub username@remote_host`
 
-After that, you can use an rsync command like `rsync -rtv --exclude .git  --exclude .checkum . user@remote`  
+After that, you can use an rsync command like `rsync -rtv --exclude .git  --exclude .checkum . user@remote:dir`  
 
 The upload will execute it in the build directory. Replace the . with a subdir if desired
 
