@@ -14,8 +14,10 @@ Here we setup the scripts and where they go. This section produces a shell scrip
     cp compile.sh ~/serving/compile.sh
     chmod +x run
     cp run /usr/local/bin/run
-    su repos -c "chmod +x upload; cp upload ~"
-    su repos -c "chmod +x download; cp download ~"
+    chmod +x upload
+    cp upload /usr/local/bin/upload
+    chmod +x download
+    cp download
     
 ---    
     
@@ -193,25 +195,26 @@ This will execute every time the webhook is triggered. We act on push events (co
 
 
     req.on( "end", function() {
-        var payload, type, repo;
+        var payload, type, repo, match, colons;
         try {
           payload = JSON.parse( data);
           type = req.headers['x-github-event'];
           if ( (type !== "push") && (type !== "release") ) {
         fs.appendFile(path + "badrequest.txt", req.rawHeaders, function() {});
           } else {   
-        repo = payload.repository.full_name.replace(/[^a-z\/-]/g, "-");
-        cp.execFile("./compile.sh", ["/home/repos/" + repo, type], function (err, stdout, stderr) {
-            if (err) {
-              fs.appendFile(path + "errorlog.txt", err, function () {});
-            } else {
-              fs.appendFile(path + "log.txt", "compiled " + repo + 
-              " " + (new Date()).toUTCString()+"\n", function () {});
-              fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
-            stdout + (stderr ? "\nErr:\n" + stderr : ''), 
-            function () {});
-            }
-          });
+             _":flag type"
+             repo = payload.repository.full_name.replace(/[^a-z\/-]/g, "-");
+             cp.execFile("./compile.sh", ["/home/repos/" + repo, type], function (err, stdout, stderr) {
+                 if (err) {
+                    fs.appendFile(path + "errorlog.txt", err, function () {});
+                  } else {
+                    fs.appendFile(path + "log.txt", "compiled " + repo + 
+                        " " + (new Date()).toUTCString()+"\n", function () {});
+                     fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
+                        stdout + (stderr ? "\nErr:\n" + stderr : ''), 
+                        function () {});
+                  }
+             });
           }
         } catch (e) {
           fs.appendFile(path + "autolog.txt", e+data, function () {});
@@ -225,6 +228,20 @@ This will execute every time the webhook is triggered. We act on push events (co
 
     }).listen( 8081 );
          
+      
+[flag type]()
+
+If a commit has the syntax `:flagname` (code quotes included) then that gets added to the type. Multiple colons allowed for multiple flags. A flag should be letters, numbers, and dashes.
+
+          if (type === "push") {
+              if (payload.hasOwnProperty("head_commit") ) {
+                var match = payload.head_commit.match(/\`\:((?:[A-Za-z0-9][A-Za-z0-9-]*\:?)+)\`/);
+                if (match) {
+                    type += ":" + match[1];
+                }
+              }
+          }
+
       
 ### Manual trigger
 
@@ -253,7 +270,7 @@ Then we switch to user litpro. This has no network access. It runs litpro typica
     su -s /bin/bash -l repos -c "cd $1; git pull; ~/download"
     echo "compile phase"
     chown -RP lpuser $1
-    su -s /bin/bash -l lpuser -c "cd $1; run"
+    su -s /bin/bash -l lpuser -c "cd $1; run $2"
     echo "upload phase"
     chown -RP repos $1
     su -s /bin/bash -l repos -c "cd $1; ~/upload $1 $2"
@@ -321,9 +338,8 @@ Pretty similar. First install the tool
 	sudo apt-get install python-pip
     sudo pip install awscli
    
-You can then do sync using  
+You can then do sync using, for example,  `aws aws s3 sync /home/repos/jostylr/learnjs/build s3://learnjs.jostylr.com --exclude .checksum --acl public-read`
    
-
 
 ### run
 
@@ -340,6 +356,7 @@ The convention is `run-#-pub.sh` or `run-#-priv.sh` where the `#` gives the orde
     var fs = require('fs');
     var cp = require('child_process');
     var exec;
+    var type = process.argv[2];
     
     // for doing the next run
     // do not stop for errors. this is questionable
@@ -376,7 +393,7 @@ This executes through the different run commands.
 
     function (arr, i) {
         var file = arr[i][0];
-        cp.execFile("./"+file, function (err, stdout, stderr) {
+        cp.execFile("./"+file, [type], function (err, stdout, stderr) {
             console.log("running " + file);
             if (err) {
                 console.error("Failed to run", err);
@@ -404,8 +421,9 @@ running of litpro). So we run `litpro -s . -b . setup.md` to run the setup.md
 literate programming and src it to this directory and the build as well. Then we
 npm install and finish off with the litpro run. 
 
-
-    cp.exec("litpro -s . -b . setup.md; npm install; litpro", function (err, stdout, stderr) {
+    _":flags"
+    cp.exec("litpro -s . -b . setup.md; npm install; litpro" + flags, 
+      function (err, stdout, stderr) {
         console.log(stdout);
         console.error(stderr);
         fs.writeFile("litpro.log", "LOG:\n" + stdout + "ERROR:\n" + stderr, 
@@ -416,9 +434,26 @@ npm install does run scripts which could be dangerous. It is important to
 inspect the scripts carefully but lpuser running these should limit their damage
 to the repo under consideration.
 
+[flags]()
+
+This creates flags that get passed along to the litpro. The plain push flag has no flag associated with it, the release type gets passed in as a flag of release, and if a type has `push:flagname` then a flag of `flagname` is pushed in. There can be multiple colons. A release, if it is being used is just a single flag, no commit processing. There is no processing of the type for the custom run. That is on those files to do. 
+
+
+	var flags;
+    if (type === "release") {
+        flags = " --flag release";
+    } else {
+        flags = type.split(":").shift(); //shift gets rid of push
+        if (flags.length) {
+            flags = " --flag " + flags.join(" --flag ");
+        } else {
+            flags = "";
+        }
+    }
+
 
 ### NPM update
 
 https://www.npmjs.com/package/npm-check-updates
 
-This a simple tool for checking update status of packages. 
+This a simple tool for checking update status of packages.
