@@ -317,14 +317,14 @@ This is the upload script. It is very simple, relying on sync commands called in
 
 [script]() 
     
-This will separate the instruction file, in the instructions directory of the repos home. The format has the type name in one line, the next is public or private (logging issues), and then a series of commands. The type will be based on a matching system, removing colons, one at a time.
+This will separate the instruction file, in the instructions directory of the repos home. The format has the type name in one line, the next is public or private (logging issues, private means no logs recorded at the moment), and then a series of commands. The type will be based on a matching system, removing colons, one at a time.
     
     var fs = require('fs');
     var cp = require('child_process');
     
-    var repo = process.argv[2]
+    var repo = process.argv[2];
     var upfile = repo.replace("/", "-")+".txt"; //should just be one slash
-    var type = process.argv[1];
+    var type = process.argv[3];
     
     var inst = fs.readFileSync('/home/repos/instructions/' + upfile, {encoding:'utf8'});
     var parts = inst.split("---");
@@ -335,14 +335,30 @@ This will separate the instruction file, in the instructions directory of the re
         actions[name] = lines;
     });
     
-    var actor, log;
+    var act = _":act";
+    
     while (type) {
     	if (actions.hasOwnProperty(type) ) {
-            actor = actions[type];
-            log = actor.shift();
-            cp.exec(log.join(";"), function (err, stdout, stderr) {
+            act(actions[type].shift(), actions[type]);
+            break;
+        } else {
+            //gets rid of end colon separated bit
+            type = type.split(":");
+            type.pop();
+            type = type.join(":");
+        }
+    }
+    if (type === '') {
+        console.log("no instructions found for process.argv[3];
+    }
+
+[act]()
+
+
+     function (actor, log) {
+            cp.exec(actor.join(";"), function (err, stdout, stderr) {
                 if (log === "public") {
-                    label = repo + " type: " + type + "\n";
+                    var label = repo + " type: " + type + "\n";
                     if (err) {
                     	console.error("Failure in " + label, err);
                     }
@@ -352,14 +368,7 @@ This will separate the instruction file, in the instructions directory of the re
                     }
                 } 
             });
-        } else {
-            //gets rid of end colon separated bit
-            type = type.split(":")
-            type.pop();
-            type = type.join(":");
-        }
-    }
-
+     }
 
 #### Setting up rsync
 
