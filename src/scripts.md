@@ -355,7 +355,7 @@ This will separate the instruction file, in the instructions directory of the re
 [act]()
 
 
-     function (actor, log) {
+     function (log, actor) {
             cp.exec(actor.join(";"), function (err, stdout, stderr) {
                 if (log === "public") {
                     var label = repo + " type: " + type + "\n";
