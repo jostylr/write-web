@@ -17,7 +17,7 @@ Here we setup the scripts and where they go. This section produces a shell scrip
     chmod +x upload
     cp upload /usr/local/bin/upload
     chmod +x download
-    cp download
+    cp download /usr/local/bin/download
     
 ---    
     
