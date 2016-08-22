@@ -317,8 +317,49 @@ This is the upload script. It is very simple, relying on sync commands called in
 
 [script]() 
     
-    console.log("uploaded ", process.argv[2]);
-    console.error("failed to upload");
+This will separate the instruction file, in the instructions directory of the repos home. The format has the type name in one line, the next is public or private (logging issues), and then a series of commands. The type will be based on a matching system, removing colons, one at a time.
+    
+    var fs = require('fs');
+    var cp = require('child_process');
+    
+    var repo = process.argv[2]
+    var upfile = repo.replace("/", "-")+".txt"; //should just be one slash
+    var type = process.argv[1];
+    
+    var inst = fs.readFileSync('/home/repos/instructions/' + upfile, {encoding:'utf8'});
+    var parts = inst.split("---");
+    var actions = {};
+    parts.forEach(function (el) {
+        var lines = el.split("\n");
+        var name = lines.shift();
+        actions[name] = lines;
+    });
+    
+    var actor, log;
+    while (type) {
+    	if (actions.hasOwnProperty(type) ) {
+            actor = actions[type];
+            log = actor.shift();
+            cp.exec(log.join(";"), function (err, stdout, stderr) {
+                if (log === "public") {
+                    label = repo + " type: " + type + "\n";
+                    if (err) {
+                    	console.error("Failure in " + label, err);
+                    }
+                    console.log("uploading for " + label, stdout);
+                    if (stderr) {
+                    	console.log("Error in " + label, stderr);
+                    }
+                } 
+            });
+        } else {
+            //gets rid of end colon separated bit
+            type = type.split(":")
+            type.pop();
+            type = type.join(":");
+        }
+    }
+
 
 #### Setting up rsync
 
