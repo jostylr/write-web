@@ -492,7 +492,7 @@ This creates flags that get passed along to the litpro. The plain push flag has 
     if (type === "release") {
         flags = " --flag release";
     } else {
-        flags = type.split(":")
+        flags = type.split(":");
         flags.shift(); //shift gets rid of push
         if (flags.length) {
             flags = " --flag " + flags.join(" --flag ");
