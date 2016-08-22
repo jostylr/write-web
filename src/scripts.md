@@ -488,8 +488,7 @@ to the repo under consideration.
 
 This creates flags that get passed along to the litpro. The plain push flag has no flag associated with it, the release type gets passed in as a flag of release, and if a type has `push:flagname` then a flag of `flagname` is pushed in. There can be multiple colons. A release, if it is being used is just a single flag, no commit processing. There is no processing of the type for the custom run. That is on those files to do. 
 
-
-	var flags;
+    var flags;
     if (type === "release") {
         flags = " --flag release";
     } else {
