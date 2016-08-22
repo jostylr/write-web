@@ -264,16 +264,16 @@ The repos user has network access. It pulls in the repository, installs npm modu
 
 Then we switch to user litpro. This has no network access. It runs litpro typically unless there is the presence of scripts of the form run-i-pub/priv.sh  So a node process runs each of them and if pub is in place, them it becomes public. 
 
-    
+    echo "repo $1 type-flag $2"
     chown -RP repos $1
     echo "download phase"
-    su -s /bin/bash -l repos -c "cd $1; git pull; ~/download"
+    su -s /bin/bash -l repos -c "cd $1; git pull; download"
     echo "compile phase"
     chown -RP lpuser $1
     su -s /bin/bash -l lpuser -c "cd $1; run $2"
     echo "upload phase"
     chown -RP repos $1
-    su -s /bin/bash -l repos -c "cd $1; ~/upload $1 $2"
+    su -s /bin/bash -l repos -c "cd $1; upload $1 $2"
     echo "done"
 
 
