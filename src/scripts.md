@@ -217,7 +217,7 @@ This will execute every time the webhook is triggered. We act on push events (co
              });
           }
         } catch (e) {
-          fs.appendFile(path + "autolog.txt", e+data, function () {});
+          fs.appendFile(path + "autolog.txt", "\n" + e+ "\n\n" + data + "\n----\n", function () {});
         }
           res.writeHead( 200, {
               'Content-type': 'text/html'
@@ -235,7 +235,7 @@ If a commit has the syntax `:flagname` (code quotes included) then that gets add
 
           if (type === "push") {
               if (payload.hasOwnProperty("head_commit") ) {
-                match = payload.head_commit.match(/\`\:((?:[A-Za-z0-9][A-Za-z0-9-]*\:?)+)\`/);
+                match = payload.head_commit.message.match(/\`\:((?:[A-Za-z0-9][A-Za-z0-9-]*\:?)+)\`/);
                 if (match) {
                     type += ":" + match[1];
                 }
