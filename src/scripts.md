@@ -195,7 +195,7 @@ This will execute every time the webhook is triggered. We act on push events (co
 
 
     req.on( "end", function() {
-        var payload, type, repo, match, colons;
+        var payload, type, repo, match;
         try {
           payload = JSON.parse( data);
           type = req.headers['x-github-event'];
@@ -235,7 +235,7 @@ If a commit has the syntax `:flagname` (code quotes included) then that gets add
 
           if (type === "push") {
               if (payload.hasOwnProperty("head_commit") ) {
-                var match = payload.head_commit.match(/\`\:((?:[A-Za-z0-9][A-Za-z0-9-]*\:?)+)\`/);
+                match = payload.head_commit.match(/\`\:((?:[A-Za-z0-9][A-Za-z0-9-]*\:?)+)\`/);
                 if (match) {
                     type += ":" + match[1];
                 }
