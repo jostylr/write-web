@@ -303,13 +303,24 @@ This needs to parse various download files
 
 [script]() 
 
-    var fs = require('fs');
+To meet the immediate need, we will create an s3 bucket with the files of interest. For now we will sync them, both to put them there and to get them out, but in the future, we will create a file uploader to the s3 bucket that will upload the files, backing up any ones that are redundant. The s3 bucket will be writeable by such a thing, but only readable by authorized user. So it is a drop-off, but not a pick-up.
+
     var cp = require('child_process');
     
-    var secret = 
+    var fullPath = process.argv[2];
+    repo = fullPath.split('/')
+    repo = repo[repo.length - 1] || 'null';
+    var com = 'cd ' + fullPath + '/downloads; aws s3 sync s3://' + repo + ' .';
+    cp.exec(com, function (err, stdout, stderr) {
+         if (err) {
+            console.error('Error in processing ' + com, err);
+         } else {
+            console.log('Processed ' + com, stdout, (stderr ? 'error: ' + stderr : '');
+         }
+    }
     
-    console.error("couldn't find");
-   
+    
+Still need to create page to save, maybe part of the editor functionality, `s3/repo-name` with a get giving the form and a post putting the object. No need for authorization as the storage is useless without access to server and/or repo.    
 
 
 ### upload
@@ -512,3 +523,4 @@ This creates flags that get passed along to the litpro. The plain push flag has 
 https://www.npmjs.com/package/npm-check-updates
 
 This a simple tool for checking update status of packages.
+
