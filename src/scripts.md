@@ -303,7 +303,11 @@ This needs to parse various download files
 
 [script]() 
 
-    console.log("downlodaed");
+    var fs = require('fs');
+    var cp = require('child_process');
+    
+    var secret = 
+    
     console.error("couldn't find");
    
 
