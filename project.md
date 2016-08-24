@@ -10,5 +10,5 @@ masses in an easy and cheap way. Ideally, it should be almost as easy as
 editing a few simple markdown documents of content and clicking on a link. 
 
 * [scripts](scripts.md "load:")  This a series of scripts for setting up the server and running it. 
-* [editor](editor.md "load:")  This allows for the editing of the respositories and upload files directly to it. 
-
+* [editor](editor.md "load:")  This allows for the editing of the respositories and upload files directly to it.
+* [save](save.md "load:") This is the file uploader for getting files into s3.
