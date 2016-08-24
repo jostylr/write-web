@@ -382,7 +382,7 @@ To meet the immediate need, we will create an s3 bucket with the files of intere
          } else {
             console.log('Processed ' + com, stdout, (stderr ? ('error: ' + stderr) : '' ));
          }
-    }
+    });
     
     
 Still need to create page to save, maybe part of the editor functionality, `s3/repo-name` with a get giving the form and a post putting the object. No need for authorization as the storage is useless without access to server and/or repo.    
