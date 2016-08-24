@@ -7,6 +7,26 @@
     module.exports = function(Folder, args) {
 
         require('litpro-jshint')(Folder, args);
+        
+        _":pug"
+        
+[pug]()    
+
+Jade converts the jade syntax into html. It is mainly used for structures as
+opposed to content. `jade text...|jade`
+
+    var pug = require('pug');
+
+    Folder.sync("pug" , function (code, args) {
+        options = args.join(",").trim();
+        if (options) {
+            options = JSON.parse(options);
+        } else {
+            options = {'pretty':true};
+        }
+        return pug.render(code, options); 
+    });
+
 
     };
 
@@ -64,4 +84,4 @@ The requisite npm package file.
 
 by [James Taylor](https://github.com/jostylr "npminfo: jostylr@gmail.com ; 
     deps: ;
-    dev: litpro-jshint 0.2.1 ")
+    dev: litpro-jshint 0.2.1, pug 2.0.0-beta5 ")
