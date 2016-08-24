@@ -373,14 +373,14 @@ To meet the immediate need, we will create an s3 bucket with the files of intere
     var cp = require('child_process');
     
     var fullPath = process.argv[2];
-    repo = fullPath.split('/')
+    repo = fullPath.split('/');
     repo = repo[repo.length - 1] || 'null';
     var com = 'cd ' + fullPath + '/downloads; aws s3 sync s3://' + repo + ' .';
     cp.exec(com, function (err, stdout, stderr) {
          if (err) {
             console.error('Error in processing ' + com, err);
          } else {
-            console.log('Processed ' + com, stdout, (stderr ? 'error: ' + stderr : '');
+            console.log('Processed ' + com, stdout, (stderr ? ('error: ' + stderr) : '' ));
          }
     }
     
