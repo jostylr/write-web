@@ -12,6 +12,8 @@
         
         _":js-stringify"
         
+    };
+        
 [lprc.js](# "save:")
         
 [pug]()    
