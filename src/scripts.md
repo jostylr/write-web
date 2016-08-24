@@ -66,7 +66,7 @@ Let's Encrypt:
     sudo apt-get install bc
 
     # Clone the Let’s Encrypt repository to your server
-    sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencry
+    sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
 
     # Move into the Let’s Encrypt directory
     cd /opt/letsencrypt
@@ -119,49 +119,114 @@ with
 
 Default setup. The idea is that we will have a static webserver on port 8080
 
+## Nginx 
+
+This is the nginx file. 
+
     # HTTP — redirect all traffic to HTTPS
     server {
         listen 80;
         listen [::]:80 default_server ipv6only=on;
         return 301 https://$host$request_uri;
     }
+    
+    _":do"
+    
+    _":save"
+    
+    _":editor"
+    
+    _":test"
+    
+    
+[default](# "save:")
+    
+[do]()
+
+This is the main server for compiling automatically. The /webhook implements the compiling. The main index is how to access the logs. /run allows for the running of predefined commands, such as running a test server for one of the apps. 
 
     # HTTPS — proxy all requests to the Node app
     server {
-        # Enable HTTP/2
-        listen 443 ssl http2;
-        listen [::]:443 ssl http2;
-        server_name do.jostylr.com;
-
-        # Use the Let’s Encrypt certificates
-        ssl_certificate /etc/letsencrypt/live/do.jostylr.com/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/do.jostylr.com/privkey.pem;
-
-        # Include the SSL configuration from cipherli.st
-        include snippets/ssl-params.conf;
-
-        location / {
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-NginX-Proxy true;
-            proxy_pass http://localhost:8080/;
-            proxy_ssl_session_reuse off;
-            proxy_set_header Host $http_host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_redirect off;
-        }
-
-        location /webhook {
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-NginX-Proxy true;
-            proxy_pass http://localhost:8081/;
-            proxy_ssl_session_reuse off;
-            proxy_set_header Host $http_host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_redirect off;
-        } 
+		
+        _":ssl | sub DOMAIN, do.jostylr.com"
+        
+        _":location | sub URL, /, PORT, 8080"
+        
+        _":location | sub URL, /webhook, PORT, 8081"
     }
+
+
+[save]()
+
+This runs a server that allows file uploads. 
+
+    server {
+		
+        _":ssl | sub DOMAIN, save.jostylr.com"
+        
+        _":location | sub URL, /, PORT, 8082"
+        
+    }
+
+
+[editor]()
+
+This runs a server that allows editing of the github repos with possible compiling. 
+
+    server {
+		
+        _":ssl | sub DOMAIN, editor.jostylr.com"
+        
+        _":location | sub URL, /, PORT, 8083"
+        
+    }
+
+[test]()
+
+This allows one to run a test server in one of those 
+
+    server {
+		
+        _":ssl | sub DOMAIN, test.jostylr.com"
+        
+        _":location | sub URL, /, PORT, 8084"
+        
+    }
+
+[ssl]()
+
+The ssl skeleton portion
+
+    # Enable HTTP/2
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name DOMAIN;
+
+    # Use the Let’s Encrypt certificates
+    ssl_certificate /etc/letsencrypt/live/DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/DOMAIN/privkey.pem;
+
+    # Include the SSL configuration from cipherli.st
+    include snippets/ssl-params.conf;
+
+
+[location]()
+
+The location skeleton
+
+    location URL {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-NginX-Proxy true;
+        proxy_pass http://localhost:PORT/;
+        proxy_ssl_session_reuse off;
+        proxy_set_header Host $http_host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_redirect off;
+    }
+
+
+[instructions]()
 
 Load in pm2 and http-server usind `sudo npm install -g ...`
 
@@ -523,4 +588,3 @@ This creates flags that get passed along to the litpro. The plain push flag has 
 https://www.npmjs.com/package/npm-check-updates
 
 This a simple tool for checking update status of packages.
-
