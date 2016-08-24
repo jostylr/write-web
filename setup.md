@@ -31,8 +31,6 @@ opposed to content. `jade text...|jade`
         return pug.render(code, options); 
     });
 
-
-    };
     
 [js-stringify]() 
 
