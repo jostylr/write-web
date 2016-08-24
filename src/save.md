@@ -6,11 +6,11 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
     var formidable = require('formidable');
     var http = require('http');
     
-    var formstr = _":form | pug | js-stringify";
+    var formstr = _"form | pug | js-stringify";
     
     http.createServer(function (req, res) {
         if (req.method.toLowerCase() === 'post') {
-            _":parse form"
+            _"parse form"
         } else {
             _"serve form"
         }
