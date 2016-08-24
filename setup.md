@@ -10,6 +10,10 @@
         
         _":pug"
         
+        _":js-stringify"
+        
+[lprc.js](# "save:")
+        
 [pug]()    
 
 Jade converts the jade syntax into html. It is mainly used for structures as
@@ -29,8 +33,16 @@ opposed to content. `jade text...|jade`
 
 
     };
+    
+[js-stringify]() 
 
-[lprc.js](# "save:")
+This takes a body of text and converts into a single string. We use JSON.stringify to quote the item correctly and then strip it out to get the quote. 
+
+    Folder.sync("js-stringify", function (input) {
+        return JSON.stringify({a:input}).slice(5,-1);
+    });
+    
+    
 
 ## NPM package
 
