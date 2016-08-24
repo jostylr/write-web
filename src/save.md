@@ -40,6 +40,8 @@ This serves the form. It should go out for anything that is not a post request.
               input(type="file", name="upload", multiple="multiple")
               br
               input(type="submit", value="Upload")
+              
+For drag and drop:  https://robertnyman.com/2010/12/16/utilizing-the-html5-file-api-to-choose-upload-preview-and-see-progress-for-multiple-files/
     
 ## Parse form
 
@@ -47,19 +49,28 @@ This parses the form, eventually sending the files to s3 as well as storing in r
 
     var form = new formidable.IncomingForm();
     
-    //no funky stuff
-    var url = url.replace(/^[a-zA-Z0-9\/-]/g, '-');
-    var paths = url.split('/');
-    var repo = path.shift() + '/' + path.shift();
-    paths = paths.join('/');
+    _":url"
+
     
     form.parse(req, function(err, fields, files) {
-        
+        console.log(fields);
+        files.forEach(function (el) {
+           console.log(file.size, file.path, file.name, file.type, file.lastModifiedDate, file.hash);
+        }); 
     });
     
 [url]()
 
-We wat to get from the url the repo which is of the form `user/repo` and then the rest is the directory relative to the s3 bucket and relative to the downloads. 
+
+We wat to get from the url the repo which is of the form `user/repo` and then the rest is the directory relative to the s3 bucket and relative to the downloads. We sanitize it so that it is just letters, numbers, dashes, and slashes. We strip the leading directories which should be the path
+
+    //no funky stuff
+    var url = req.url.replace(/^[a-zA-Z0-9\/-]/g, '-');
+    var paths = url.split('/');
+    var repo = paths.shift() + '/' + paths.shift();
+    var folder = paths.join('/');
+    
+    
 
 
 ## NPM package
