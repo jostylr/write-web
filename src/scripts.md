@@ -158,10 +158,12 @@ This is the main server for compiling automatically. The /webhook implements the
 
 [save]()
 
-This runs a server that allows file uploads. 
+This runs a server that allows file uploads. We need to set the body size allowed. 20M here; no video files. Based on http://cnedelcu.blogspot.com/2013/09/nginx-error-413-request-entity-too-large.html
 
     server {
-		
+		 
+        client_max_body_size 20M;
+        
         _":ssl | sub DOMAIN, save.jostylr.com"
         
         _":location | sub URL, /, PORT, 8082"
