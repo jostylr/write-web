@@ -7,6 +7,7 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
 
     var formidable = require('formidable');
     var http = require('http');
+    var util = require('util');
     
     var formstr = _"form | pug | js-stringify";
     
