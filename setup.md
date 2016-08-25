@@ -18,8 +18,8 @@
         
 [pug]()    
 
-Jade converts the jade syntax into html. It is mainly used for structures as
-opposed to content. `jade text...|jade`
+Pug converts the pug syntax into html. It is mainly used for structures as
+opposed to content. `pug text...|pug`  Formerly jade. 
 
     var pug = require('pug');
 
