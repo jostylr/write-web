@@ -9,7 +9,7 @@ The form should also have a comment box. All of this needs to be logged.
 
 Maybe write a script that takes in the version name and replaces it in the generated output using a version control list in the repo. 
 
-So in the repo, we have an assets folder which is externally saved files. We also have a quarantine folder. And we have a log file. 
+So in the repo, we have an assets folder which is externally saved files. We also have a quarantine folder. And we have a log file. We could also have a secrets folder; in here would be whatever, but probably a private repo that gets pulled when changed. 
 
 ## Uploading file server
 
@@ -54,7 +54,7 @@ This serves the form. It should go out for anything that is not a post request.
           title File Upload
        body
           form(enctype="multipart/form-data", method="post")
-              input(type="text", name="title")
+              input(type="text", name="comment")
               br
               input(type="file", name="upload", multiple="multiple")
               br
@@ -69,14 +69,19 @@ This parses the form, eventually sending the files to s3 as well as storing in r
     var form = new formidable.IncomingForm();
     
     form.parse(req, function(err, fields, files) {
-        console.log(fields, files, files.upload);
-        //files = (Array.isArray(files) ? files : [files]);
-        files.upload.forEach(function (file) {
-             console.log(file.size, file.path, file.name, file.type, file.lastModifiedDate, file.hash);
-        });
-        res.writeHead(200, {'content-type': 'text/plain'});
-        res.write('received upload:\n\n');
-        res.end(util.inspect({fields: fields, files: files}));
+        var comment = fields.comment;
+        if (files.hasOwnProperty("upload")) {
+            files = Array.isArray(files.upload) ? files.upload : [files.upload];
+            files.forEach(function (file) {
+                 console.log(file.name, file.path);
+            });
+            res.writeHead(200, {'content-type': 'text/plain'});
+            res.write('received upload:\n\n');
+            res.end(util.inspect({fields: fields, files: files}));
+        } else {
+            res.writeHead(404, {'content-type': 'text/plain'});
+            res.end("file failed to upload.");
+        }
     });
     
 
@@ -85,8 +90,12 @@ This parses the form, eventually sending the files to s3 as well as storing in r
 We wat to get from the url the repo which is of the form `user/repo` and then the rest is the directory relative to the s3 bucket and relative to the downloads. We sanitize it so that it is just letters, numbers, dashes, and slashes. We strip the leading directories which should be the path
 
     //no funky stuff
-    var url = req.url.replace(/^[a-zA-Z0-9\/-]/g, '-');
+    var url = req.url.slice(1).replace(/[^a-zA-Z0-9\/-]/g, '-');
     var paths = url.split('/');
+    if ( (paths.length <= 1) || (paths[0].length === 0) ) { // need at least two paths
+    	_"reject"
+        return;
+    }
     var repo = paths.shift() + '/' + paths.shift();
     var folder = paths.join('/');
     var repoPath = '/home/repos/' + repo;
