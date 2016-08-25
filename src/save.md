@@ -79,6 +79,9 @@ This parses the form, eventually sending the files to s3 as well as storing in r
             files = Array.isArray(files.upload) ? files.upload : [files.upload];
             files.forEach(function (file) {
                  console.log(file.name, file.path, util.inspect(file));
+                 fs.access(file.path, function (err) {
+                     console.log(err);
+                 });
             });
             res.writeHead(200, {'content-type': 'text/html'});
             res.end(formstr.replace("Uploads welcome!", "Successfully uploaded. Another?"));
