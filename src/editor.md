@@ -10,8 +10,14 @@ It should have automated saving to the server every minute in a distinct directo
 
 Going to be sketchy initially.
 
+Need also to deal with text editing (code mirror -- submit form, need password stuff).
+
+## App
 
 
-Tip on upload of pictures: https://tonyspiro.com/uploading-resizing-images-fly-node-js-express/
+## Editor Page
 
-Need also to deal with text editing (code mirror -- submit form, need password stuff).  
+
+## Login page
+
+
