@@ -69,6 +69,10 @@ This parses the form, eventually sending the files to s3 as well as storing in r
 
     var form = new formidable.IncomingForm();
     
+    form.uploadDir = 'temp';
+    form.multiples = true;
+    form.keepExtensions = true;
+    
     form.parse(req, function(err, fields, files) {
         var comment = fields.comment;
         if (files.hasOwnProperty("upload")) {
