@@ -54,9 +54,10 @@ This parses the form, eventually sending the files to s3 as well as storing in r
     
     form.parse(req, function(err, fields, files) {
         console.log(fields);
+        files = (Array.isArray(files) ? files : [files];
         files.forEach(function (el) {
-           console.log(file.size, file.path, file.name, file.type, file.lastModifiedDate, file.hash);
-        }); 
+             console.log(file.size, file.path, file.name, file.type, file.lastModifiedDate, file.hash);
+        });
     });
     
 [url]()
