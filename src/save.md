@@ -58,6 +58,9 @@ This parses the form, eventually sending the files to s3 as well as storing in r
         files.forEach(function (file) {
              console.log(file.size, file.path, file.name, file.type, file.lastModifiedDate, file.hash);
         });
+        res.writeHead(200, {'content-type': 'text/plain'});
+        res.write('received upload:\n\n');
+        res.end(util.inspect({fields: fields, files: files}));
     });
     
 [url]()
