@@ -3,20 +3,28 @@
 
 Uploading file server
 
-This is what is behind save.jostylr.com  The idea is that we have a simple form served via gets, regardless of the url. The url tells us where to store the files. 
+This is what is behind save.jostylr.com  The idea is that we have a simple form served via gets if the url points to a valid repo; it denies access otehrwise. The url tells us where to store the files. 
 
     var formidable = require('formidable');
     var http = require('http');
     var util = require('util');
+    var fs = require('fs');
     
     var formstr = _"form | pug | js-stringify";
     
     http.createServer(function (req, res) {
-        if (req.method.toLowerCase() === 'post') {
-            _"parse form"
-        } else {
+        _"parse url into repo"
+        fs.access(repoPath, function (err) {
+            _"reject"
+            
+            if (req.method.toLowerCase() === 'post') {
+                _"parse form"
+                return;
+            }
+            
             _"serve form"
-        }
+            
+        });
     }).listen(8082);
     
 [s3/save.js](# "save: | jshint")
@@ -29,7 +37,7 @@ This serves the form. It should go out for anything that is not a post request.
     res.writeHead(200, {'content-type': 'text/html'});
     res.end( formstr );
     
-## Form
+### Form
 
     html
        head
@@ -50,9 +58,6 @@ This parses the form, eventually sending the files to s3 as well as storing in r
 
     var form = new formidable.IncomingForm();
     
-    _":url"
-
-    
     form.parse(req, function(err, fields, files) {
         console.log(fields, files, files.upload);
         //files = (Array.isArray(files) ? files : [files]);
@@ -64,8 +69,8 @@ This parses the form, eventually sending the files to s3 as well as storing in r
         res.end(util.inspect({fields: fields, files: files}));
     });
     
-[url]()
 
+## Parse url into repo
 
 We wat to get from the url the repo which is of the form `user/repo` and then the rest is the directory relative to the s3 bucket and relative to the downloads. We sanitize it so that it is just letters, numbers, dashes, and slashes. We strip the leading directories which should be the path
 
@@ -74,8 +79,30 @@ We wat to get from the url the repo which is of the form `user/repo` and then th
     var paths = url.split('/');
     var repo = paths.shift() + '/' + paths.shift();
     var folder = paths.join('/');
-    
-    
+    var repoPath = '/home/repos/' + repo;
+
+
+## Reject
+
+If the url does not correspond to a known repo, then we reject the page and send an access error.
+
+    if (err) {
+        res.writeHead(404, {'content-type' : 'text/html'});
+        res.end( _":html | pug | js-stringify" ); 
+        return;
+    }
+
+[html]() 
+
+    html
+      head 
+          title Access Denied
+      body
+          h2 Your path is not recognized.
+          
+          h3 Do not give up hope. You will figure this out. 
+          
+          h4 Need help? Seek it. 
 
 
 ## NPM package
