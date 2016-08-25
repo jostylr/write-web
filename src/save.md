@@ -1,7 +1,17 @@
 
-# [save](# "version: 0.1.0; saving files to s3")
+# [save](# "version: 0.1.0; saving assets")
 
-Uploading file server
+Our requirements:  `save.jostylr.com/user/repo/...` points to an upload into the ... folders of s3 in the repo of interest. This will store the files locally in that repo and sync to s3 for backup; part of the setup process will also do a reverse sync. 
+
+Security. One option is to put a password for the folders. This would require cookie and sessions and be a bit of a hassle. Instead, we will allow for uploads, but a file is quarantined until it appears on a manifest list. A file that already exists will have the new file versioned and quarantined until on the manifest. The versioning should be returned to the uploader along with another upload form. 
+
+The form should also have a comment box. All of this needs to be logged. 
+
+Maybe write a script that takes in the version name and replaces it in the generated output using a version control list in the repo. 
+
+So in the repo, we have an assets folder which is externally saved files. We also have a quarantine folder. And we have a log file. 
+
+## Uploading file server
 
 This is what is behind save.jostylr.com  The idea is that we have a simple form served via gets if the url points to a valid repo; it denies access otehrwise. The url tells us where to store the files. 
 
