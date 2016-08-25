@@ -53,6 +53,7 @@ This serves the form. It should go out for anything that is not a post request.
        head
           title File Upload
        body
+          h1 Uploads welcome!
           form(enctype="multipart/form-data", method="post")
               input(type="text", name="comment")
               br
@@ -77,7 +78,7 @@ This parses the form, eventually sending the files to s3 as well as storing in r
             });
             res.writeHead(200, {'content-type': 'text/plain'});
             res.write('received upload:\n\n');
-            res.end(util.inspect({fields: fields, files: files}));
+            res.end(formstr.replace("Uploads welcome!", "Successfully uploaded. Another?");
         } else {
             res.writeHead(404, {'content-type': 'text/plain'});
             res.end("file failed to upload.");
