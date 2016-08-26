@@ -87,6 +87,7 @@ This parses the form, eventually sending the files to s3 as well as storing in r
         var assetsExisting = {};
         var assetLines = [];
         var gcd = new EvW();
+        _"console logging"
         if (files.hasOwnProperty("upload")) {
             gcd.on("directory data received", _"deal with files");
             gcd.on("files moved", _"report files loaded");
@@ -270,7 +271,10 @@ We wat to get from the url the repo which is of the form `user/repo` and then th
         return;
     }
     var repo = paths.shift() + '/' + paths.shift();
-    var folder = paths.join('/')+'/';
+    var folder = paths.join('/');
+    if (folder) { 
+        folder += '\';
+    }
     var repoPath = '/home/repos/' + repo;
 
 
@@ -293,6 +297,22 @@ If the url does not correspond to a known repo, then we reject the page and send
           
           h4 Need help? Seek it. 
 
+
+## Console logging
+
+Here are some quick event data
+
+    gcd.log = function () {
+        var a = arguments[0];
+        var b = arguments[1];
+        var c = arguments[2];
+        var str = function (a) {
+           return (typeof a === "string") ? a : '';
+        }
+        if ( (a === "on") || (a === "when") || (a === "emit") ) {
+           console.log(str(a), " !! ", str(b),  " !!! " , str(c));
+        }
+    };
 
 ## NPM package
 
