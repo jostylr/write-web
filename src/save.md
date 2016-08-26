@@ -90,7 +90,7 @@ This parses the form, eventually sending the files to s3 as well as storing in r
             gcd.on("directory data received, _"deal with files");
             gcd.on("files moved", _"report files loaded");
             gcd.when("files seen", "files moved");
-            _"get directory data
+            _"get directory data"
 
         } else {
             res.writeHead(400, {'content-type': 'text/plain'});
