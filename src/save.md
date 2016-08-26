@@ -248,7 +248,7 @@ All the files have been moved. We now construct the return object. We also write
         report += '</ol>';
          
         if (assetLines.length > 0) {
-            fs.appendFile(repoPath + '/assetsexisting.txt', assetLines.join("\n"), function () {} );
+            fs.appendFile(repoPath + '/assetsexisting.txt', "\n" + assetLines.join("\n"), function () {} );
         }
          
         res.writeHead(200, {'content-type': 'text/html'});
