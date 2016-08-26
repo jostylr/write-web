@@ -144,7 +144,7 @@ Assets existing should be an object with keys being the filenames and value bein
         var lines = txt.split("\n");
         lines.forEach(function (el) {
            if (el) {
-              var data = el.split(" ");
+              var data = el.split(" | ");
               assetsExisting[data[0]] = data[1];
            }
         });
