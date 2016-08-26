@@ -87,7 +87,7 @@ This parses the form, eventually sending the files to s3 as well as storing in r
         var assetsExisting;
         var gcd = new EvW();
         if (files.hasOwnProperty("upload")) {
-            gcd.on("directory data received, _"deal with files");
+            gcd.on("directory data received", _"deal with files");
             gcd.on("files moved", _"report files loaded");
             gcd.when("files seen", "files moved");
             _"get directory data"
