@@ -273,8 +273,11 @@ We wat to get from the url the repo which is of the form `user/repo` and then th
 
 If the url does not correspond to a known repo, then we reject the page and send an access error.
 
-    res.writeHead(404, {'content-type' : 'text/html'});
-    res.end( _":html | pug | js-stringify" ); 
+    if (err) {
+        res.writeHead(404, {'content-type' : 'text/html'});
+        res.end( _":html | pug | js-stringify" ); 
+        return;
+    }
 
 [html]() 
 
