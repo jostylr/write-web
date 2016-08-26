@@ -138,6 +138,7 @@ Assets existing should be an object with keys being the filenames and value bein
     fs.readFile(repoPath + '/assetsexisting.txt', {encoding: 'utf8'}, function (err, txt) {
         if (err) {
             gcd.emit('failure in directory data: cannot not read asset', [err]);
+            return;
         }
         var lines = txt.split("\n");
         lines.forEach(function (el) {
