@@ -165,9 +165,8 @@ The requisite npm package file.
     }
 
 
-[s3/package.json](# "save:")
+[editor/package.json](# "save:")
 
 
 by [James Taylor](https://github.com/jostylr "npminfo: jostylr@gmail.com ; 
     deps: express 4.14.0, event-when 1.5.0")
-
