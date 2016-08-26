@@ -79,7 +79,7 @@ This parses the form, eventually sending the files to s3 as well as storing in r
     form.uploadDir = 'temp';
     form.multiples = true;
     form.keepExtensions = true;
-    form.hash = true;
+    form.hash = 'sha1';
     var now = (new Date()).toUTCString();
     
     form.parse(req, function(err, fields, files) {
@@ -172,6 +172,7 @@ If the file already exists, we check to see if the hash is different. If it is, 
     function () {
         files = Array.isArray(files.upload) ? files.upload : [files.upload];
         files.forEach(function (file) {
+            console.log(file);
             var fname = file.name.replace(/[^a-zA-Z0-9._-]/g, '\_');
             var tempname = file.path;
             var relFname = folder + fname;
@@ -211,7 +212,7 @@ The file exists. So we move it to the tempname in the folder location. We record
         } else {
             ready.push("File " + relFname + " already exists and is different." + 
                 " Uploaded file is now named " + folder + tempname);
-            assetLines.push([folder + tempname, file.hash, now, relFname ].join(" "));
+            assetLines.push([folder + tempname, file.hash, now, relFname ].join(" | "));
             gcd.emit(fileEmit);
         }
     });
@@ -227,7 +228,7 @@ The file exists. So we move it to the tempname in the folder location. We record
             
         } else {
             ready.push("File " + relFname + " has been saved.");
-            assetLines.push([relFname, file.hash, now, relFname ].join(" "));
+            assetLines.push([relFname, file.hash, now, relFname ].join(" | "));
             gcd.emit(fileEmit);
         }
     });
