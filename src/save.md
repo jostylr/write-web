@@ -247,14 +247,23 @@ All the files have been moved. We now construct the return object. We also write
         report += '</ol>';
          
         if (assetLines.length > 0) {
-            fs.appendFile(repoPath + '/assetsexisting.txt', "\n" + assetLines.join("\n"), function () {} );
+            fs.appendFile(repoPath + '/assetsexisting.txt', "\n" + assetLines.join("\n"), function () {
+               cp.execFile("aws", 
+                 ['s3', 'cp', repoPath + '/assetsexisting.txt', 's3://save.jostylr.com/assetlisting/' + 
+                     repo + 'assetsexisting.txt', '--dryrun'], 
+                 function (err, stdout, stderr) {
+                     console.log(err, stdout, stderr);
+                 }
+              );  
+           } );
         }
         
         cp.execFile("aws", 
              ['s3', 'sync', repoPath + '/assets/', 's3://save.jostylr.com/' + repo, '--dryrun'], 
              function (err, stdout, stderr) {
                  console.log(err, stdout, stderr);
-        });
+             }
+        );
          
         res.writeHead(200, {'content-type': 'text/html'});
         res.end(formstr.
@@ -263,7 +272,7 @@ All the files have been moved. We now construct the return object. We also write
         );
     }
 
-         
+
 
 ## Parse url into repo
 
