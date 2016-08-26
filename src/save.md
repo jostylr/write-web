@@ -235,23 +235,21 @@ All the files have been moved. We now construct the return object.
 
     function () {
          var report = '';
-         report += '<h3>The following files have been quarantined:</h3><ol>';
-         quarantine_":forEach";
-         report += '</ol><h3>The following files are ready</h3><ol>';
-         ready_":forEach";
-         report += '</ol';
+         report += '<h3>Reports on the following files</h3><ol>';
+         ready.forEach(function (el) {
+             report += '<li>el</li>';
+         });
+         report += '</ol>';
+         
+         
          
          res.writeHead(200, {'content-type': 'text/html'});
          res.end(formstr.
              replace("Uploads welcome!", "Successfully uploaded. Another?").
-             replace("</body>", report + "</body>");
+             replace("</body>", report + "</body>") );
          );
 
-[forEach]() 
-
-         .forEach(function (el) {
-             report += '<li>el</li>';
-         })
+         
 
 ## Parse url into repo
 
