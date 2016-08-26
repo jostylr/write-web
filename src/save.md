@@ -273,7 +273,7 @@ We wat to get from the url the repo which is of the form `user/repo` and then th
     var repo = paths.shift() + '/' + paths.shift();
     var folder = paths.join('/');
     if (folder) { 
-        folder += '\';
+        folder += '/';
     }
     var repoPath = '/home/repos/' + repo;
 
