@@ -211,7 +211,7 @@ The file exists. So we move it to the tempname in the folder location. We record
             ready.push("File " + relFname + " has led to an error: " + err);
         } else {
             ready.push("File " + relFname + " already exists and is different." + 
-                " Uploaded file is now named " + folder + tempname);
+                " Uploaded file is now named " + backname );
             assetLines.push([backname, file.hash, now, relFname ].join(" | "));
         }
         gcd.emit(fileEmit);        
