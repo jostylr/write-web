@@ -23,6 +23,7 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
     var http = require('http');
     var util = require('util');
     var fs = require('fs');
+    var cp = require('child_process');
     var EvW = require('event-when');
     
     var formstr = _"form | pug | js-stringify";
@@ -85,6 +86,7 @@ This parses the form, eventually sending the files to s3 as well as storing in r
         var comment = fields.comment;
         var ready = [];
         var assetsExisting;
+        var assetLines = [];
         var gcd = new EvW();
         if (files.hasOwnProperty("upload")) {
             gcd.on("directory data received", _"deal with files");
@@ -142,7 +144,7 @@ Assets existing should be an object with keys being the filenames and value bein
         lines.forEach(function (el) {
            var data = el.split(" ");
            assetsExisting[data[0]] = data[1];
-        }
+        });
         gcd.emit('asset file read in');
     });
 
@@ -231,23 +233,26 @@ The file exists. So we move it to the tempname in the folder location. We record
 
 ### Report files loaded 
 
-All the files have been moved. We now construct the return object. 
+All the files have been moved. We now construct the return object. We also write the assetLines to the asset folder. 
 
     function () {
-         var report = '';
-         report += '<h3>Reports on the following files</h3><ol>';
-         ready.forEach(function (el) {
-             report += '<li>el</li>';
-         });
-         report += '</ol>';
+        var report = '';
+        report += '<h3>Reports on the following files</h3><ol>';
+        ready.forEach(function (el) {
+            report += '<li>el</li>';
+        });
+        report += '</ol>';
          
+        if (assetLines.length > 0) {
+            fs.appendFile(repoPath + '/assetsexisting.txt', assetLines.join("\n"), function () {} );
+        }
          
-         
-         res.writeHead(200, {'content-type': 'text/html'});
-         res.end(formstr.
-             replace("Uploads welcome!", "Successfully uploaded. Another?").
-             replace("</body>", report + "</body>") );
-         );
+        res.writeHead(200, {'content-type': 'text/html'});
+        res.end(formstr.
+            replace("Uploads welcome!", "Successfully uploaded. Another?").
+            replace("</body>", report + "</body>")
+        );
+    }
 
          
 
@@ -271,11 +276,8 @@ We wat to get from the url the repo which is of the form `user/repo` and then th
 
 If the url does not correspond to a known repo, then we reject the page and send an access error.
 
-    if (err) {
-        res.writeHead(404, {'content-type' : 'text/html'});
-        res.end( _":html | pug | js-stringify" ); 
-        return;
-    }
+    res.writeHead(404, {'content-type' : 'text/html'});
+    res.end( _":html | pug | js-stringify" ); 
 
 [html]() 
 
