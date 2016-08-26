@@ -244,7 +244,7 @@ All the files have been moved. We now construct the return object.
          res.writeHead(200, {'content-type': 'text/html'});
          res.end(formstr.
              replace("Uploads welcome!", "Successfully uploaded. Another?").
-             replace("</body>", report + "</body>";
+             replace("</body>", report + "</body>");
          );
 
 [forEach]() 
