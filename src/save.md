@@ -167,7 +167,7 @@ If the file already exists, we check to see if the hash is different. If it is, 
     function () {
         files = Array.isArray(files.upload) ? files.upload : [files.upload];
         files.forEach(function (file) {
-            var fname = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            var fname = file.name.replace(/[^a-zA-Z0-9._-]/g, '\_');
             var tempname = file.path;
             var relFname = folder + fname;
             var fileEmit = 'file moved:' + tempname;
