@@ -109,7 +109,7 @@ This needs to make sure the relevant asset directory exists and grab the asset f
     _":failure condition"
     _":check directory existence"
     _":read asset file listing"
-    
+    gcd.emit('directory data called');
     
 [check directory existence]()
 
