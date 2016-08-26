@@ -31,7 +31,9 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
     http.createServer(function (req, res) {
         _"parse url into repo"
         fs.access(repoPath, function (err) {
-            _"reject"
+            if (err) {
+                _"reject"
+            }
             
             if (req.method.toLowerCase() === 'post') {
                 _"parse form"
@@ -273,11 +275,8 @@ We wat to get from the url the repo which is of the form `user/repo` and then th
 
 If the url does not correspond to a known repo, then we reject the page and send an access error.
 
-    if (err) {
-        res.writeHead(404, {'content-type' : 'text/html'});
-        res.end( _":html | pug | js-stringify" ); 
-        return;
-    }
+    res.writeHead(404, {'content-type' : 'text/html'});
+    res.end( _":html | pug | js-stringify" ); 
 
 [html]() 
 
