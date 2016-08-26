@@ -205,16 +205,15 @@ Very simple. Report the sameness, emit file done.
 
 The file exists. So we move it to the tempname in the folder location. We record that. 
 
-    fs.rename(tempname, assetPath + tempname, function (err) {
+    fs.rename(tempname, assetPath + folder + tempname, function (err) {
         if (err) {
-            ready.push("File " + relFname + " has led to an error:" + err);
-            
+            ready.push("File " + relFname + " has led to an error: " + err);
         } else {
             ready.push("File " + relFname + " already exists and is different." + 
                 " Uploaded file is now named " + folder + tempname);
             assetLines.push([folder + tempname, file.hash, now, relFname ].join(" | "));
-            gcd.emit(fileEmit);
         }
+        gcd.emit(fileEmit);        
     });
 
 
@@ -224,13 +223,12 @@ The file exists. So we move it to the tempname in the folder location. We record
  
      fs.rename(tempname, assetPath + relFname, function (err) {
         if (err) {
-            ready.push("File " + relFname + " has led to an error:" + err);
-            
+            ready.push("File " + relFname + " has led to an error: " + err);
         } else {
             ready.push("File " + relFname + " has been saved.");
             assetLines.push([relFname, file.hash, now, relFname ].join(" | "));
-            gcd.emit(fileEmit);
         }
+        gcd.emit(fileEmit);
     });
   
 
