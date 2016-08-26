@@ -3,7 +3,11 @@
 
 Our requirements:  `save.jostylr.com/user/repo/...` points to an upload into the ... folders of s3 in the repo of interest. This will store the files locally in that repo and sync to s3 for backup; part of the setup process will also do a reverse sync. 
 
-Security. One option is to put a password for the folders. This would require cookie and sessions and be a bit of a hassle. Instead, we will allow for uploads, but a file is quarantined until it appears on a manifest list. A file that already exists will have the new file versioned and quarantined until on the manifest. The versioning should be returned to the uploader along with another upload form. 
+Security. One option is to put a password for the folders. This would require cookie and sessions and be a bit of a hassle. ~~Instead, we will allow for uploads, but a file is quarantined until it appears on a manifest list. A file that already exists will have the new file versioned and quarantined until on the manifest. The versioning should be returned to the uploader along with another upload form. ~~
+
+New idea. All files not already existing are saved in the assets folder, under the provided path. There needs to be an import list to port them into the build folder where they will get served. Files that would overwrite them use the random name. All files get put in a list with their actual filename, their uploaded filename, the file hash, and the upload date. 
+
+When the files get transferred to build, a list should be maintained of what files and hashes have been sent. Each time the transfer is run, it checks to see what transfers need to be done. The what-has-been transferred should have filename and hash. This will be checked against which files should be done. 
 
 The form should also have a comment box. All of this needs to be logged. 
 
@@ -74,11 +78,13 @@ This parses the form, eventually sending the files to s3 as well as storing in r
     form.uploadDir = 'temp';
     form.multiples = true;
     form.keepExtensions = true;
+    form.hash = true;
+    var now = (new Date()).toUTCString();
     
     form.parse(req, function(err, fields, files) {
         var comment = fields.comment;
-        var quarantine = [], ready = [];
-        var assetsAllowed = [], assetsExisting = [];
+        var ready = [];
+        var assetsExisting;
         var gcd = new EvW();
         if (files.hasOwnProperty("upload")) {
             gcd.on("directory data received, _"deal with files");
@@ -87,66 +93,140 @@ This parses the form, eventually sending the files to s3 as well as storing in r
             _"get directory data
 
         } else {
-            res.writeHead(404, {'content-type': 'text/plain'});
-            res.end("file failed to upload.");
+            res.writeHead(400, {'content-type': 'text/plain'});
+            res.end("file failed to upload. No file found");
         }
     });
     
 ### Get Directory Data
     
-This needs to make sure the relevant asset and quarantine directories exist, grab the asset file listings, and grab the permitted assets files. For existing asset files that collide with name, there is a backup associated with it, and that needs to get checked, etc. Anything that is not in the assets permission file, gets sent to quarantine. Files can get overwritten in quarantine (if you are overwriting a quarantine file, it is not yet in production and it might as well replace it -- silent overwritng too! Is this hostile UI to myself, probably). 
+This needs to make sure the relevant asset directory exists and grab the asset file listings in that directory. For existing asset files that collide with name, the random upload name will be left in place.  
 
-Each line of the asset file will start with a dir/filename followed by space. These are allowed files. Stuff after the space is ignored in this setup.
+    var assetPath = repoPath + '/assets/' + folder;
+    gcd.when('directory data called', 'directory data received');
+    _":failure condition"
+    _":check directory existence"
+    _":read asset file listing"
     
     
+[check directory existence]()
+
+We need the asset directory to exist. We create it if it does not. Faillure happens if we cannot create it. 
+
+    gcd.when('directory exists:'+ assetPath, 'directory data received');
+    fs.access(assetPath, function (err) {
+        if (err) {            
+            cp.execFile('mkdir', ['-p', assetPath], function (err, stdout, stderr) {
+                if (err) {
+                    gcd.emit('failure in directory data: cannot make directory', err);
+                    return;
+                }
+                gcd.emit('directory exists:' + assetPath, [stderr, stdout]);
+            });
+        } else {
+           gcd.emit('directory exists:' + assetPath);
+        }
+    });
     
+
+[read asset file listing]()
+
+Assets existing should be an object with keys being the filenames and value being the hash. These are the first entries on a line in the assetsexisting file. 
+
+    gcd.when('asset file read in', 'directory data received');
+    fs.readFile(repoPath + '/assetsexisting.txt', {encoding: 'utf8'}, function (err, txt) {
+        if (err) {
+            gcd.emit('failure in directory data: cannot not read asset', [err]);
+        }
+        var lines = txt.split("\n");
+        lines.forEach(function (el) {
+           var data = el.split(" ");
+           assetsExisting[data[0]] = data[1];
+        }
+        gcd.emit('asset file read in');
+    });
+
+[failure condition]()
+
+If `failure in directory data` is issued, error is returned
+
+    gcd.on('failure in directory data', function (data, event) {
+        res.writeHead(500, {'content-type' : 'text/plain'});
+        res.end("directory cannot be accessed." + event.ev + data);
+    });
+
+
     
 ### Deal with files
 
-Here we need to mv the file from the temp directory to either the quarantine directory or assets directory
+We have our list of existing asset files and we have the directory to write them to. 
 
-First, we need to obtain the file name. 
+If the file already exists, we check to see if the hash is different. If it is, we log it as being different and save it under the random name. If it is not different, then we log it as having been already uploaded, seemingly the same, doing nothing. If it does not already exist, we move and save it. 
 
-Then we need to check our lists and see if  
-
-Need to rethink backups. Maybe none. Maybe just a separate directory that can be dealth with. An overwrite toggle or something? 
 
     function () {
-            files = Array.isArray(files.upload) ? files.upload : [files.upload];
-            files.forEach(function (file) {
-                 var fname = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-                 var tempname = file.path;
-                 var relFname = folder + fname;
-                 if ( assetsAllowed.indexOf(relFname) !== -1 ) {
-                     if (assetsExisting.indexOf(relFname) === -1) {
-                         gcd.when("file moved:tempname", "files moved");
-                         fs.rename(tempname, relFname, function (err) {
-                             if (err) {
-                                 log("Error", tempname, relFname, err);
-                             } else {
-                                 log("File Saved", relFname);
-                             }
-                             gcd.emit("file moved:tempname");
-                         });
-                     } else {
-                         var i, n= assetsExisting.length; //must end before this
-                         relFname = 
-                         do {
-                             
-                         
-                         } until (i < n)
-                     }
-                 } else {
+        files = Array.isArray(files.upload) ? files.upload : [files.upload];
+        files.forEach(function (file) {
+            var fname = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            var tempname = file.path;
+            var relFname = folder + fname;
+            var fileEmit = 'file moved:' + tempname;
+            gcd.when(fileEmit, 'files moved');
+            if ( assetsExisting.hasOwnProperty(relFname) ) {
+                if (assetsExisting[relFname] === file.hash ) {
+                    _":report same"
+                } else {
+                    _":already exists different"
                     
-                 }
-                 console.log(file.name, file.path, util.inspect(file));
-                 fs.access(file.path, function (err) {
-                     console.log(err);
-                 });
-            });
-            gcd.emit("files seen");
-            
+                }
+            } else {
+                _":does not exist"
+            }
+        });
+        gcd.emit("files seen");
     }
+    
+[report same]()
+
+Very simple. Report the sameness, emit file done.
+
+     ready.push("File " + relFname + " already exists and seems identical. Ignoring.");
+     fs.unlink(tempname, function () {});
+     gcd.emit(fileEmit, null);
+     
+
+[already exists different]()
+
+The file exists. So we move it to the tempname in the folder location. We record that. 
+
+    fs.rename(tempname, assetPath + tempname, function (err) {
+        if (err) {
+            ready.push("File " + relFname + " has led to an error:" + err);
+            
+        } else {
+            ready.push("File " + relFname + " already exists and is different." + 
+                " Uploaded file is now named " + folder + tempname);
+            assetLines.push([folder + tempname, file.hash, now, relFname ].join(" "));
+            gcd.emit(fileEmit);
+        }
+    });
+
+
+[does not exist]()
+    
+ The file exists 
+ 
+     fs.rename(tempname, assetPath + relFname, function (err) {
+        if (err) {
+            ready.push("File " + relFname + " has led to an error:" + err);
+            
+        } else {
+            ready.push("File " + relFname + " has been saved.");
+            assetLines.push([relFname, file.hash, now, relFname ].join(" "));
+            gcd.emit(fileEmit);
+        }
+    });
+  
 
 
 ### Report files loaded 
