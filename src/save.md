@@ -84,7 +84,7 @@ This parses the form, eventually sending the files to s3 as well as storing in r
     
     form.parse(req, function(err, fields, files) {
         var ready = [];
-        var assetsExisting;
+        var assetsExisting = {};
         var assetLines = [];
         var gcd = new EvW();
         if (files.hasOwnProperty("upload")) {
@@ -142,8 +142,10 @@ Assets existing should be an object with keys being the filenames and value bein
         }
         var lines = txt.split("\n");
         lines.forEach(function (el) {
-           var data = el.split(" ");
-           assetsExisting[data[0]] = data[1];
+           if (el) {
+              var data = el.split(" ");
+              assetsExisting[data[0]] = data[1];
+           }
         });
         gcd.emit('asset file read in');
     });
