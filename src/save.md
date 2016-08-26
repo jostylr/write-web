@@ -205,7 +205,7 @@ Very simple. Report the sameness, emit file done.
 
 The file exists. So we move it to the tempname in the folder location. We record that. 
 
-    var backname = folder + tempname.slice(6);
+    var backname = folder + tempname.slice(5);
     fs.rename(tempname, assetPath + backname, function (err) {
         if (err) {
             ready.push("File " + relFname + " has led to an error: " + err);
