@@ -61,8 +61,6 @@ This serves the form. It should go out for anything that is not a post request.
        body
           h1 Uploads welcome!
           form(enctype="multipart/form-data", method="post")
-              input(type="text", name="comment")
-              br
               input(type="file", name="upload", multiple="multiple")
               br
               input(type="submit", value="Upload")
@@ -83,7 +81,6 @@ This parses the form, eventually sending the files to s3 as well as storing in r
     var now = (new Date()).toUTCString();
     
     form.parse(req, function(err, fields, files) {
-        var comment = fields.comment;
         var ready = [];
         var assetsExisting;
         var assetLines = [];
@@ -239,7 +236,7 @@ All the files have been moved. We now construct the return object. We also write
         var report = '';
         report += '<h3>Reports on the following files</h3><ol>';
         ready.forEach(function (el) {
-            report += '<li>el</li>';
+            report += '<li>' + el + '</li>';
         });
         report += '</ol>';
          
