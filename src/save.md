@@ -78,9 +78,10 @@ For drag and drop:  https://robertnyman.com/2010/12/16/utilizing-the-html5-file-
 Let's use DropZone  http://www.dropzonejs.com/
 
 
-    if (req.url === "dropzone.js") {
+    if (req.url.indexOf("dropzone.js") !== -1) {
        res.writeHead(200, {'content-type': 'application/javascript'});
        res.end(dropzone);
+       return;
     }
     
     
