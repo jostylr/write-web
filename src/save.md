@@ -27,8 +27,10 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
     var EvW = require('event-when');
     
     var formstr = _"form | pug | js-stringify";
+    var dropzone = fs.readFileSync("dropzone.js", {encoding: 'utf8'});
     
     http.createServer(function (req, res) {
+        _"serve dropzone"
         _"parse url into repo"
         fs.access(repoPath, function (err) {
             if (err) {
@@ -62,17 +64,24 @@ This serves the form. It should go out for anything that is not a post request.
           title File Upload
        body
           h1 Uploads welcome!
-          form(enctype="multipart/form-data", method="post")
-              input(type="file", name="upload", multiple="multiple")
+          form.dropzone(enctype="multipart/form-data", method="post")
+              input.fallback(type="file", name="upload", multiple="multiple")
               br
               input(type="submit", value="Upload")
+          script(src="dropzone.js")
          
               
 For drag and drop:  https://robertnyman.com/2010/12/16/utilizing-the-html5-file-api-to-choose-upload-preview-and-see-progress-for-multiple-files/
     
-### Drag and drop
+### Serve dropzone
 
 Let's use DropZone  http://www.dropzonejs.com/
+
+
+    if (req.url === "dropzone.js") {
+       res.writeHead(200, {'content-type': 'application/javascript'});
+       res.end(dropzone);
+    }
     
     
 ## Parse form
