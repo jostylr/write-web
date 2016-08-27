@@ -70,6 +70,11 @@ This serves the form. It should go out for anything that is not a post request.
               
 For drag and drop:  https://robertnyman.com/2010/12/16/utilizing-the-html5-file-api-to-choose-upload-preview-and-see-progress-for-multiple-files/
     
+### Drag and drop
+
+Let's use DropZone  http://www.dropzonejs.com/
+    
+    
 ## Parse form
 
 This parses the form, eventually sending the files to s3 as well as storing in repo under the same name. 
@@ -328,6 +333,21 @@ Here are some quick event data
            console.log(str(a), " !! ", str(b),  " !!! " , str(c));
         }
     };
+    
+
+## Transfer shell script
+
+This is a script that reads in asset-transfer.txt (and possibly quiet/asset-transfer.txt), asset-existing.txt, and asset-built.txt, trying to figure out which files need to be transferred to build and/or a script that acts on it? 
+
+transfer.txt would be of the following form: 
+
+first lines are simply transfer. Each file has a line and if it should just go where it is named (typical), then that's it. If it gets named to something else, then write that, relative to the latest directory a directory allows one to write the directory prefix easily leave a slash at the end. A second one on directory line sends them all to that directory. 
+
+We can also have scripts that take in a single file and a destination (and maybe other options) and again we can use the same directory format and conventions. The first portion can be thought of as the mv command. We denote a new command as a line starting with >
+
+
+
+    
 
 ## NPM package
 
