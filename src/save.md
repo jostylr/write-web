@@ -338,7 +338,7 @@ The file exists. So we move it to the tempname in the folder location. We record
             ready.push("File " + relFname + " already exists and is different." + 
                 " Uploaded file is now named " + backname );
             assetLines.push([backname, file.hash, now, relFname ].join(" | "));
-            transferLines.push([backname, relFname].join ", ");
+            transferLines.push([backname, relFname].join(", ") );
         }
         gcd.emit(fileEmit);        
     });
@@ -354,7 +354,7 @@ The file exists. So we move it to the tempname in the folder location. We record
         } else {
             ready.push("File " + relFname + " has been saved.");
             assetLines.push([relFname, file.hash, now, relFname ].join(" | "));
-            transferLines.push([relFname, relFname].join ", ");
+            transferLines.push([relFname, relFname].join(", ") );
         }
         gcd.emit(fileEmit);
     });
