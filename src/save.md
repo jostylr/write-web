@@ -310,7 +310,7 @@ We also have some code to try and prevent multiple files with the same name bein
             var relFname = folder + fname;
             var desiredName = relFname;
             var fileEmit = 'file moved:' + tempname;
-            var backname = tempname.slice(5);
+            var backname = tempname.slice(5).toLowerCase();
             if (filesSoFar.indexOf(relFname) !== -1) {
                  relFname = folder + backname;
             } else {
@@ -352,7 +352,7 @@ The file exists. So we move it to the tempname in the folder location. We record
             ready.push("File " + relFname + " already exists and is different." + 
                 " Uploaded file is now named " + folback );
             assetLines.push([folback, file.hash, now, relFname ].join(" | "));
-            transferLines.push([folback, relFname].join(", ") );
+            transferLines.push([folbackname, relFname].join(", ") );
         }
         gcd.emit(fileEmit);        
     });
@@ -426,7 +426,7 @@ All the files have been moved. We now construct the return object. We also write
 We wat to get from the url the repo which is of the form `user/repo` and then the rest is the directory relative to asset folder. We sanitize it so that it is just letters, numbers, dashes, and slashes. We strip the leading directories which should be the path
 
     //no funky stuff
-    var url = req.url.slice(1).replace(/[^a-zA-Z0-9\/-]/g, '-');
+    var url = req.url.slice(1).replace(/[^a-zA-Z0-9\/-]/g, '-').toLowerCase();
     var paths = url.split('/');
     if ( (paths.length <= 1) || (paths[0].length === 0) ) { // need at least two paths
     	_"reject"
