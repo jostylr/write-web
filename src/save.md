@@ -484,7 +484,7 @@ The requisite npm package file.
     }
 
 
-[s3/package.json](# "save:")
+[save/package.json](# "save:")
 
 
 by [James Taylor](https://github.com/jostylr "npminfo: jostylr@gmail.com ; 
