@@ -277,6 +277,7 @@ We have our list of existing asset files and we have the directory to write them
 
 If the file already exists, we check to see if the hash is different. If it is, we log it as being different and save it under the random name. If it is not different, then we log it as having been already uploaded, seemingly the same, doing nothing. If it does not already exist, we move and save it. 
 
+We allow for overwriting of the filename in the input, with optional extension. We also sanitize it so that it is letters, numbers, dashes, and underscores; spaces and other stuff gets replaced with an underscore. Also everything is lowercased to avoid any file confusion issues. 
 
     function () {
         files = Array.isArray(files.upload) ? files.upload : [files.upload];
@@ -294,7 +295,7 @@ If the file already exists, we check to see if the hash is different. If it is, 
             } else {
                 fname = file.name;
             }
-            var fname = fname.replace(/[^a-zA-Z0-9._-]/g, '\_');
+            var fname = fname.replace(/[^a-zA-Z0-9._-]/g, '\_').toLowerCase();
             console.log(file.name, fields[ind], fname, file.path);            
             var tempname = file.path;
             var relFname = folder + fname;
