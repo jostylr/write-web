@@ -26,11 +26,10 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
     var cp = require('child_process');
     var EvW = require('event-when');
     
-    var formstr = _"form | pug | js-stringify";
+    var formstr = _"form | js-stringify";
     var dropzone = fs.readFileSync("dropzone.js", {encoding: 'utf8'});
     
     http.createServer(function (req, res) {
-        _"serve dropzone"
         _"parse url into repo"
         fs.access(repoPath, function (err) {
             if (err) {
@@ -59,6 +58,92 @@ This serves the form. It should go out for anything that is not a post request.
     
 ### Form
 
+We will use a variation from https://www.raymondcamden.com/2013/09/10/Adding-a-file-display-list-to-a-multifile-upload-HTML-control/
+
+Added some styling to the input files item so that it is a large drag and drop area.
+
+Having more programmatic file uploading to a form rather than xhr is not possible due to security issues. So we make the file upload input very large with css. 
+
+
+	<!doctype html>
+	<html>
+	<head>
+	<title>File Upload</title>
+	<style>
+	    #selectedFiles img {
+		max-width: 125px;
+		max-height: 125px;
+		float: left;
+		margin-bottom:10px;
+	    }
+        #files {
+          height: 40vw;
+          border: medium solid;
+          width: 100%;
+          background-color: lightblue;
+        }
+        #submit {
+            height: 10vw;
+            width: 100%;
+        }
+	</style>
+	</head>
+	    
+	<body>
+	    
+	    <form id="myForm" method="post" enctype="multipart/form-data">
+
+		Files: <input type="file" id="files" name="upload" multiple><br/>
+
+		<div id="selectedFiles"></div>
+
+		<input id="submit" type="submit" value="Click to save the assets">
+	    </form>
+
+	    <script>
+	    var selDiv = "";
+		
+	    document.addEventListener("DOMContentLoaded", init, false);
+	    
+	    function init() {
+		document.querySelector('#files').addEventListener('change', handleFileSelect, false);
+		selDiv = document.querySelector("#selectedFiles");
+	    }
+		
+	    function handleFileSelect(e) {
+		
+		if(!e.target.files || !window.FileReader) return;
+
+		selDiv.innerHTML = "";
+		
+		var files = e.target.files;
+		var filesArr = Array.prototype.slice.call(files);
+		filesArr.forEach(function(f) {
+		    var f = files[i];
+		    if(!f.type.match("image.*")) {
+			return;
+		    }
+
+		    var reader = new FileReader();
+		    reader.onload = function (e) {
+			var html = "<img src=\"" + e.target.result + "\">" + f.name + "<br clear=\"left\"/>";
+			selDiv.innerHTML += html;               
+		    }
+		    reader.readAsDataURL(f); 
+		});
+		
+	    }
+	    </script>
+
+	</body>
+	</html>
+
+
+
+[junk]() 
+
+Works, but is limited in the drag and drop file upload department. 
+
     html
        head
           title File Upload
@@ -69,22 +154,10 @@ This serves the form. It should go out for anything that is not a post request.
               br
               input(type="submit", value="Upload")
           script(src="dropzone.js")
-         
-              
-For drag and drop:  https://robertnyman.com/2010/12/16/utilizing-the-html5-file-api-to-choose-upload-preview-and-see-progress-for-multiple-files/
-    
-### Serve dropzone
-
-Let's use DropZone  http://www.dropzonejs.com/
+          
 
 
-    if (req.url.indexOf("dropzone.js") !== -1) {
-       res.writeHead(200, {'content-type': 'application/javascript'});
-       res.end(dropzone);
-       return;
-    }
-    
-    
+
 ## Parse form
 
 This parses the form, eventually sending the files to s3 as well as storing in repo under the same name. 
