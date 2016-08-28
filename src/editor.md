@@ -20,6 +20,7 @@ We will use express. It will serve the static files, manage the sessions, and ma
     var url = require('url');
     var fs = require('fs');
     var cp = require('child_process');
+    var crypto = require('crypto');
     
     var express = require('express');
     var logger = require('morgan');
@@ -49,19 +50,22 @@ We will use express. It will serve the static files, manage the sessions, and ma
 
 ## Login Authentication
 
-Here we handle the login and authentcation aspect of all of this. 
+Here we handle the login and authentcation aspect of all of this. This is a single user editing system.
 
 The plan is to use cookie session to maintain the session nature. 
 
-    var secret = fs.readFileSync('../cookie-secret', {encoding:'utf8'});
-    var authToken = fs.readFileSync('../auth-token', {encoding:'utf8'});
-    var pwd = fs.readFileSynce('../pwd', {encoding:'utf8'});
+    var secret = crypto.randomBytes(32).toString('hex');
+    var authToken = crypto.randomBytes(32).toString('hex');
+
+    var pwd = fs.readFileSynce('pwd.txt', {encoding:'utf8'});
     
     app.use(cookieSession({
         secure:true,
         secureProxy: true,
         secret: secret
     });
+    
+    app.use(bodyParser.urlencoded({extended:false});
     
     app.use(_"check for login");
     
@@ -70,7 +74,17 @@ The plan is to use cookie session to maintain the session nature.
 
 ### Check for login
 
-The login form sends a post to the same address. So we look for a post with fields username and password. If there, we confirm authenticity and set session data. Also, if possible, set the method to GET. If not there, we move on to the next step. 
+The login form sends a post to the same address. So we look for a post with fields username and password. If there, we confirm authenticity and set session data. Also, if possible, set the method to GET. If not there, we move on to the next step. The login is the only form encoded submission so if body is present at this point, it should mean this is a login form. I will probably hate myself later for doing this. 
+
+    function (req, res, next) {
+        if (req.body) {
+        
+        } else {
+           next() 
+        }
+    
+    }
+
 
 ### Check for session send login if needed
 
@@ -86,10 +100,15 @@ The login page is fairly simple
           title Login
        body
           h1 Login, Please
-          form
+          form(method="post", name=")
+             label(for="username") Username
              input(type="text", name="username")
              br
-             input(type=
+             label(for="pwd") Password
+             input(type="password", name="pwd")
+             br
+             input(type="submit", value="Submit")
+             
  
 
 ## Some xhr stuff
