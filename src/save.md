@@ -313,6 +313,7 @@ We also have some code to try and prevent multiple files with the same name bein
             var backname = tempname.slice(5).toLowerCase();
             if (filesSoFar.indexOf(relFname) !== -1) {
                  relFname = folder + backname;
+                 fname = backname;
             } else {
                 filesSoFar.push(relFname);
             }
