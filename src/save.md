@@ -74,25 +74,29 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
 		width: 10vw;
         height: 10vh;
 		margin-bottom:10px;
+        display:inline-block;
 	    }
         #selectedFiles .fname {
-           width: 20vh;
+           width: 10vh;
+           margin:10px;
+           display:inline-block;
         }
         #selectedFiles .newname {
            width: 20vh;
+           display:inline-block;
         }
         #selectedFiles img {
            max-height:100%;
            max-width: 100%;
         }
         #files {
-          height: 40vw;
+          height: 10vh;
           border: medium solid;
           width: 100%;
           background-color: lightblue;
         }
         #submit {
-            height: 10vh;
+            height: 6vh;
             width: 100%;
         }
 	</style>
@@ -136,7 +140,7 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
            
             str += '<li><span class="img"></span><span class="fname">' + 
                f.name + '</span><span class="newname"><input type="text" name="' +
-               i + '"></li>\n';
+               i + '" placeholder="New name (optional)"></li>\n';
         
             if ( f.type.match("image.*")  && window.FileReader ) {
                var reader = new FileReader();
