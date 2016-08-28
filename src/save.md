@@ -1,7 +1,7 @@
 
 # [save](# "version: 0.1.0; saving assets")
 
-Our requirements:  `save.jostylr.com/user/repo/...` points to an upload into the ... folders of s3 in the repo of interest. This will store the files locally in that repo and sync to s3 for backup; part of the setup process will also do a reverse sync. 
+Our requirements:  `save.jostylr.com/user/repo/...` points to an upload into the ... folders of the assets folder in the local repo.  This will store the files locally in that repo and sync according to the instructions in the instruction file under "asset".
 
 Security. One option is to put a password for the folders. This would require cookie and sessions and be a bit of a hassle. ~~Instead, we will allow for uploads, but a file is quarantined until it appears on a manifest list. A file that already exists will have the new file versioned and quarantined until on the manifest. The versioning should be returned to the uploader along with another upload form. ~~
 
@@ -45,7 +45,7 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
         });
     }).listen(8082);
     
-[s3/save.js](# "save: | jshint")
+[save/save.js](# "save: | jshint")
     
     
 ## Serve Form
@@ -181,7 +181,7 @@ Works, but is limited in the drag and drop file upload department.
 
 ## Parse form
 
-This parses the form, eventually sending the files to s3 as well as storing in repo under the same name. 
+This parses the form, storing in repo under the same name. 
 
     var form = new formidable.IncomingForm();
     
@@ -357,23 +357,16 @@ All the files have been moved. We now construct the return object. We also write
         report += '</ol>';
          
         if (assetLines.length > 0) {
-            fs.appendFile(repoPath + '/assetsexisting.txt', "\n" + assetLines.join("\n"), function () {
-               cp.execFile("aws", 
-                 ['s3', 'cp', repoPath + '/assetsexisting.txt', 's3://save.jostylr.com/assetlisting/' + 
-                     repo + 'assetsexisting.txt', '--dryrun'], 
+            fs.appendFile(repoPath + '/assetsexisting.txt', "\n" + assetLines.join("\n"), 
+              function () {
+               cp.execFile("upload", [repo, "assets"], 
                  function (err, stdout, stderr) {
                      console.log(err, stdout, stderr);
-                 }
-              );  
-           } );
+               });  
+           });
         }
         
-        cp.execFile("aws", 
-             ['s3', 'sync', repoPath + '/assets/', 's3://save.jostylr.com/' + repo, '--dryrun'], 
-             function (err, stdout, stderr) {
-                 console.log(err, stdout, stderr);
-             }
-        );
+
          
         res.writeHead(200, {'content-type': 'text/html'});
         res.end(formstr.
