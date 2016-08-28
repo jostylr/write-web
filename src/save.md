@@ -311,7 +311,7 @@ We also have some code to try and prevent multiple files with the same name bein
             var desiredName = relFname;
             var fileEmit = 'file moved:' + tempname;
             var backname = tempname.slice(5);
-            if (filesSoFar.indexof(relFname) !== -1) {
+            if (filesSoFar.indexOf(relFname) !== -1) {
                  relFname = folder + backname;
             } else {
                 filesSoFar.push(relFname);
