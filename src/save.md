@@ -281,12 +281,14 @@ If the file already exists, we check to see if the hash is different. If it is, 
     function () {
         files = Array.isArray(files.upload) ? files.upload : [files.upload];
         files.forEach(function (file, ind) {
-            var fname;
+            var fname, dotloc;
             if (fields[ind]) {
                 fname = fields[ind];
                 //give an extension of the original if not in existence
                 if (fname.indexOf(".") === -1) {
-                    fname += file.name.slice(file.name.lastIndexOf(".") );
+                    dotloc = file.name.lastIndexOf(".");
+                    if (dotloc !== -1) {
+                        fname += file.name.slice(dotloc);
                 }
             } else {
                 fname = file.name;
