@@ -286,7 +286,7 @@ If the file already exists, we check to see if the hash is different. If it is, 
                 fname = fields[ind];
                 //give an extension of the original if not in existence
                 if (fname.indexOf(".") === -1) {
-                    fname += file.name.slice(fname.lastIndexOf(".") );
+                    fname += file.name.slice(file.name.lastIndexOf(".") );
                 }
             } else {
                 fname = file.name;
