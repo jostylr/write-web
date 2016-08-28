@@ -192,7 +192,6 @@ This parses the form, storing in repo under the same name.
     var now = (new Date()).toUTCString();
     
     form.parse(req, function(err, fields, files) {
-     console.log(fields);
         var ready = [];
         var assetsExisting = {};
         var assetLines = [];
@@ -282,8 +281,18 @@ If the file already exists, we check to see if the hash is different. If it is, 
     function () {
         files = Array.isArray(files.upload) ? files.upload : [files.upload];
         files.forEach(function (file, ind) {
-            console.log(file.name, fields[ind]);
-            var fname = file.name.replace(/[^a-zA-Z0-9._-]/g, '\_');
+            var fname;
+            if (fields[ind]) {
+                fname = fields[ind];
+                //give an extension of the original if not in existence
+                if (fname.indexOf(".") === -1) {
+                    fname += file.name.slice(fname.lastIndexOf(".") );
+                }
+            } else {
+                fname = file.name;
+            }
+            var fname = fname.replace(/[^a-zA-Z0-9._-]/g, '\_');
+            console.log(file.name, fields[ind], fname, tempname);            
             var tempname = file.path;
             var relFname = folder + fname;
             var fileEmit = 'file moved:' + tempname;
