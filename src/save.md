@@ -138,7 +138,7 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
                f.name + '</span><span class="newname"><input type="text" name="' +
                i + '"></li>\n';
         
-            if ( (f.type.match("image.*")  && window.FileReader ) {
+            if ( f.type.match("image.*")  && window.FileReader ) {
                var reader = new FileReader();
                reader.onload = function (e) {
                     var html = '<img src="' + e.target.result + '">;
