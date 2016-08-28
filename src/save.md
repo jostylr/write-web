@@ -175,7 +175,6 @@ Works, but is limited in the drag and drop file upload department.
               input.fallback(type="file", name="upload", multiple="multiple")
               br
               input(type="submit", value="Upload")
-          script(src="dropzone.js")
           
 
 
@@ -193,11 +192,12 @@ This parses the form, eventually sending the files to s3 as well as storing in r
     var now = (new Date()).toUTCString();
     
     form.parse(req, function(err, fields, files) {
+     console.log(fields);
         var ready = [];
         var assetsExisting = {};
         var assetLines = [];
         var gcd = new EvW();
-        _"console logging"
+        _"console logging | echo "
         if (files.hasOwnProperty("upload")) {
             gcd.on("directory data received", _"deal with files");
             gcd.on("files moved", _"report files loaded");
@@ -281,8 +281,8 @@ If the file already exists, we check to see if the hash is different. If it is, 
 
     function () {
         files = Array.isArray(files.upload) ? files.upload : [files.upload];
-        files.forEach(function (file) {
-            console.log(file);
+        files.forEach(function (file, ind) {
+            console.log(file.name, fields[ind]);
             var fname = file.name.replace(/[^a-zA-Z0-9._-]/g, '\_');
             var tempname = file.path;
             var relFname = folder + fname;
