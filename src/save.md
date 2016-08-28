@@ -130,7 +130,7 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
             reader.readAsDataURL(f); 
             
         });
-        
+     }
 	    </script>
 
 	</body>
