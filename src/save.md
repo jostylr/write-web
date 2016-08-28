@@ -289,6 +289,7 @@ If the file already exists, we check to see if the hash is different. If it is, 
                     dotloc = file.name.lastIndexOf(".");
                     if (dotloc !== -1) {
                         fname += file.name.slice(dotloc);
+                    }
                 }
             } else {
                 fname = file.name;
