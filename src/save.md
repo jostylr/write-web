@@ -200,6 +200,7 @@ This parses the form, storing in repo under the same name.
         var transferLines = [];
         var assetsExisting = {};
         var assetLines = [];
+        var filesSoFar = [];
         var gcd = new EvW();
         _"console logging | echo "
         if (files.hasOwnProperty("upload")) {
@@ -284,6 +285,8 @@ If the file already exists, we check to see if the hash is different. If it is, 
 
 We allow for overwriting of the filename in the input, with optional extension. We also sanitize it so that it is letters, numbers, dashes, and underscores; spaces and other stuff gets replaced with an underscore. Also everything is lowercased to avoid any file confusion issues. 
 
+We also have some code to try and prevent multiple files with the same name being uploaded in the same upload as causing conflicts (image.jpeg from ios -- argh). 
+
     function () {
         files = Array.isArray(files.upload) ? files.upload : [files.upload];
         files.forEach(function (file, ind) {
@@ -301,17 +304,24 @@ We allow for overwriting of the filename in the input, with optional extension. 
                 fname = file.name;
             }
             var fname = fname.replace(/[^a-zA-Z0-9._-]/g, '\_').toLowerCase();
+
             console.log(file.name, fields[ind], fname, file.path);            
             var tempname = file.path;
             var relFname = folder + fname;
+            var desiredName = relFname;
             var fileEmit = 'file moved:' + tempname;
+            var backname = tempname.slice(5);
+            if (filesSoFar.indexof(relFname) !== -1) {
+                 relFname = folder + backname;
+            } else {
+                filesSoFar.push(relFname);
+            }
             gcd.when(fileEmit, 'files moved');
             if ( assetsExisting.hasOwnProperty(relFname) ) {
                 if (assetsExisting[relFname] === file.hash ) {
                     _":report same"
                 } else {
                     _":already exists different"
-                    
                 }
             } else {
                 _":does not exist"
@@ -333,7 +343,7 @@ Very simple. Report the sameness, emit file done.
 
 The file exists. So we move it to the tempname in the folder location. We record that. 
 
-    var backname = tempname.slice(5);
+
     fs.rename(tempname, assetPath + backname, function (err) {
         if (err) {
             ready.push("File " + relFname + " has led to an error: " + err);
@@ -349,15 +359,22 @@ The file exists. So we move it to the tempname in the folder location. We record
 
 [does not exist]()
     
- The file exists 
+ The file does not exist so we save it with the desired name. If another file was uploaded with the same name, then the desired and relative names will be different and report that. This is the only situation in which they will differ; the backup name will not conflict with any other files so if it gets changed then that is why. 
  
      fs.rename(tempname, assetPath + fname, function (err) {
         if (err) {
             ready.push("File " + relFname + " has led to an error: " + err);
         } else {
-            ready.push("File " + relFname + " has been saved.");
-            assetLines.push([relFname, file.hash, now, relFname ].join(" | "));
-            transferLines.push([relFname, relFname].join(", ") );
+            if (desiredName !== relFname) {
+               ready.push("Intended file " + desiredName + " has bee saved as " + relFname + 
+                 " due to conflict with another uploaded file.");
+               assetLines.push([relFname, file.hash, now, desiredName ].join(" | "));
+               transferLines.push([relFname, desiredName].join(", ") );            
+            } else { 
+               ready.push("File " + relFname + " has been saved.");
+               assetLines.push([relFname, file.hash, now, relFname ].join(" | "));
+               transferLines.push([relFname, relFname].join(", ") );
+            }
         }
         gcd.emit(fileEmit);
     });
@@ -458,6 +475,10 @@ Here are some quick event data
         }
     };
     
+
+## TODO
+
+Transfer script, figure out why ios sometimes does not work in transferring
 
 ## Transfer shell script
 
