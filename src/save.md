@@ -141,13 +141,15 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
             if ( f.type.match("image.*")  && window.FileReader ) {
                var reader = new FileReader();
                reader.onload = function (e) {
-                    var html = '<img src="' + e.target.result + '">;
+                    var html = '<img src="' + e.target.result + '">';
                     var item = selDiv.querySelector('ol :nth-child(' + (i+1) + ') .img');
                     item.innerHTML = html;
+               };
+               reader.readAsDataURL(f); 
             }
-            reader.readAsDataURL(f); 
-            
         });
+        str += "</ol>";
+        selDiv.innerHTML = str;
      }
 	    </script>
 
