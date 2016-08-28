@@ -119,6 +119,7 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
         var filesArr = Array.prototype.slice.call(files);
         filesArr.forEach(function(f) {
             if(!f.type.match("image.*")) {
+                selDiv.innerHTML += f.name + '<br clear="left"/>';
                 return;
             }
     
