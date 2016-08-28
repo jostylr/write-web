@@ -70,12 +70,21 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
     <meta name = "viewport" content = "user-scalable=yes, initial-scale=1.0, maximum-scale=1.0, width=device-width">
 	<title>File Upload</title>
 	<style>
-	    #selectedFiles img {
-		max-width: 125px;
-		max-height: 125px;
-		float: left;
+	    #selectedFiles .img {
+		width: 10vw;
+        height: 10vh;
 		margin-bottom:10px;
 	    }
+        #selectedFiles .fname {
+           width: 20vh;
+        }
+        #selectedFiles .newname {
+           width: 20vh;
+        }
+        #selectedFiles img {
+           max-height:100%;
+           max-width: 100%;
+        }
         #files {
           height: 40vw;
           border: medium solid;
@@ -83,7 +92,7 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
           background-color: lightblue;
         }
         #submit {
-            height: 10vw;
+            height: 10vh;
             width: 100%;
         }
 	</style>
@@ -112,24 +121,29 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
         
     function handleFileSelect(e) {
         
-        if (!e.target.files || !window.FileReader) {
-             return;    
-         }
+        selDiv.innerHTML = '';
         
-        selDiv.innerHTML = "";
+        if (!e.target.files) {
+            return;
+        }
         
         var files = e.target.files;
-        var filesArr = Array.prototype.slice.call(files);
-        filesArr.forEach(function(f) {
-            if(!f.type.match("image.*")) {
-                selDiv.innerHTML += f.name + '<br clear="left"/>';
-                return;
-            }
-    
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                var html = "<img src=\"" + e.target.result + "\">" + f.name + "<br clear=\"left\"/>";
-                selDiv.innerHTML += html;                
+        var filesArr = Array.prototype.slice.call(files);                   
+
+        var str = '<ol>\n';
+
+        filesArr.forEach(function(f, i) {
+           
+            str += '<li><span class="img"></span><span class="fname">' + 
+               f.name + '</span><span class="newname"><input type="text" name="' +
+               i + '"></li>\n';
+        
+            if ( (f.type.match("image.*")  && window.FileReader ) {
+               var reader = new FileReader();
+               reader.onload = function (e) {
+                    var html = '<img src="' + e.target.result + '">;
+                    var item = selDiv.querySelector('ol :nth-child(' + (i+1) + ') .img');
+                    item.innerHTML = html;
             }
             reader.readAsDataURL(f); 
             
