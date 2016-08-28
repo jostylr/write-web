@@ -156,6 +156,7 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
         selDiv.innerHTML = str;
      }
 	    </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
 
 	</body>
 	</html>
@@ -193,6 +194,7 @@ This parses the form, storing in repo under the same name.
     
     form.parse(req, function(err, fields, files) {
         var ready = [];
+        var transferLines = [];
         var assetsExisting = {};
         var assetLines = [];
         var gcd = new EvW();
@@ -336,6 +338,7 @@ The file exists. So we move it to the tempname in the folder location. We record
             ready.push("File " + relFname + " already exists and is different." + 
                 " Uploaded file is now named " + backname );
             assetLines.push([backname, file.hash, now, relFname ].join(" | "));
+            transferLines.push([backname, relFname].join ", ");
         }
         gcd.emit(fileEmit);        
     });
@@ -351,6 +354,7 @@ The file exists. So we move it to the tempname in the folder location. We record
         } else {
             ready.push("File " + relFname + " has been saved.");
             assetLines.push([relFname, file.hash, now, relFname ].join(" | "));
+            transferLines.push([relFname, relFname].join ", ");
         }
         gcd.emit(fileEmit);
     });
@@ -368,7 +372,11 @@ All the files have been moved. We now construct the return object. We also write
             report += '<li>' + el + '</li>';
         });
         report += '</ol>';
-         
+        report += '<pre>\n';
+        report += transferLines.join("\n");
+        report += '\n</pre>';
+        report += '<button data-clipboard-target="pre">' +
+             'Copy to clipboard</button>';
         if (assetLines.length > 0) {
             fs.appendFile(repoPath + '/assetsexisting.txt', "\n" + assetLines.join("\n"), 
               function () {
