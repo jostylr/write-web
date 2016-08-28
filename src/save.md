@@ -157,6 +157,9 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
      }
 	    </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
+        <script>
+        var clipboard = new Clipboard('button');
+        </script>
 
 	</body>
 	</html>
@@ -372,6 +375,8 @@ All the files have been moved. We now construct the return object. We also write
             report += '<li>' + el + '</li>';
         });
         report += '</ol>';
+        report += '<p>Copy below into transfer.txt in repo.' +
+            ' The second column is the destination.</p>'
         report += '<pre>\n';
         report += transferLines.join("\n");
         report += '\n</pre>';
