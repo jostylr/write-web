@@ -292,7 +292,7 @@ If the file already exists, we check to see if the hash is different. If it is, 
                 fname = file.name;
             }
             var fname = fname.replace(/[^a-zA-Z0-9._-]/g, '\_');
-            console.log(file.name, fields[ind], fname, tempname);            
+            console.log(file.name, fields[ind], fname, file.path);            
             var tempname = file.path;
             var relFname = folder + fname;
             var fileEmit = 'file moved:' + tempname;
