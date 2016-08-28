@@ -27,7 +27,6 @@ This is what is behind save.jostylr.com  The idea is that we have a simple form 
     var EvW = require('event-when');
     
     var formstr = _"form | js-stringify";
-    var dropzone = fs.readFileSync("dropzone.js", {encoding: 'utf8'});
     
     http.createServer(function (req, res) {
         _"parse url into repo"
