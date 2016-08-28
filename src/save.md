@@ -352,7 +352,7 @@ The file exists. So we move it to the tempname in the folder location. We record
             ready.push("File " + relFname + " already exists and is different." + 
                 " Uploaded file is now named " + folback );
             assetLines.push([folback, file.hash, now, relFname ].join(" | "));
-            transferLines.push([folbackname, relFname].join(", ") );
+            transferLines.push([folback, relFname].join(", ") );
         }
         gcd.emit(fileEmit);        
     });
