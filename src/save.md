@@ -345,13 +345,14 @@ The file exists. So we move it to the tempname in the folder location. We record
 
 
     fs.rename(tempname, assetPath + backname, function (err) {
+        var folback = folder + backname;
         if (err) {
             ready.push("File " + relFname + " has led to an error: " + err);
         } else {
             ready.push("File " + relFname + " already exists and is different." + 
-                " Uploaded file is now named " + backname );
-            assetLines.push([backname, file.hash, now, relFname ].join(" | "));
-            transferLines.push([backname, relFname].join(", ") );
+                " Uploaded file is now named " + folback );
+            assetLines.push([folback, file.hash, now, relFname ].join(" | "));
+            transferLines.push([folback, relFname].join(", ") );
         }
         gcd.emit(fileEmit);        
     });
