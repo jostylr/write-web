@@ -67,6 +67,7 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
 	<!doctype html>
 	<html>
 	<head>
+    <meta name = "viewport" content = "user-scalable=yes, initial-scale=1.0, maximum-scale=1.0, width=device-width">
 	<title>File Upload</title>
 	<style>
 	    #selectedFiles img {
@@ -111,7 +112,9 @@ Having more programmatic file uploading to a form rather than xhr is not possibl
         
     function handleFileSelect(e) {
         
-        if(!e.target.files || !window.FileReader) return;
+        if (!e.target.files || !window.FileReader) {
+             return;    
+         }
         
         selDiv.innerHTML = "";
         
