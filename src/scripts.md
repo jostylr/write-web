@@ -150,12 +150,14 @@ This is the main server for compiling automatically. The /webhook implements the
 
     # HTTPS — proxy all requests to the Node app
     server {
-		
+        
         _":ssl | sub DOMAIN, do.jostylr.com"
         
-        _":location | sub URL, /, PORT, 8080"
+        root /root/public
         
         _":location | sub URL, /webhook, PORT, 8081"
+        
+        _":location | sub URL, /debug, PORT, 8080"
     }
 
 
