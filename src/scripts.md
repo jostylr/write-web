@@ -590,8 +590,4 @@ This creates flags that get passed along to the litpro. The plain push flag has 
     }
 
 
-### NPM update
 
-https://www.npmjs.com/package/npm-check-updates
-
-This a simple tool for checking update status of packages.
