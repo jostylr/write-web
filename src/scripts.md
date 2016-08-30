@@ -19,6 +19,9 @@ Here we setup the scripts and where they go. This section produces a shell scrip
     chmod +x download
     cp download /usr/local/bin/download
     
+Less likely to change and more sensitive is the nginx file. It can be updated by `cp default /etc/nginx/sites-enabled` Need to learn more about nginx's workings.
+    
+    
 ---    
     
  * [disperse.sh](# "save:")
