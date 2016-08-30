@@ -1,7 +1,7 @@
 
 # [save](# "version: 0.1.0; saving assets")
 
-Our requirements:  `save.jostylr.com/user/repo/...` points to an upload into the ... folders of the assets folder in the local repo.  This will store the files locally in that repo and sync according to the instructions in the instruction file under "asset".
+Our requirements:  `save.jostylr.com/repo-nickname/...` points to an upload into the ... folders of the assets folder in the local repo. This will store the files locally in that repo and sync according to the instructions in the instruction file under "asset".
 
 Security. One option is to put a password for the folders. This would require cookie and sessions and be a bit of a hassle. ~~Instead, we will allow for uploads, but a file is quarantined until it appears on a manifest list. A file that already exists will have the new file versioned and quarantined until on the manifest. The versioning should be returned to the uploader along with another upload form. ~~
 
@@ -424,16 +424,16 @@ All the files have been moved. We now construct the return object. We also write
 
 ## Parse url into repo
 
-We wat to get from the url the repo which is of the form `user/repo` and then the rest is the directory relative to asset folder. We sanitize it so that it is just letters, numbers, dashes, and slashes. We strip the leading directories which should be the path
+We wat to get from the url the repo which is of the form `repo-nickname` and then the rest is the directory relative to asset folder. We sanitize it so that it is just letters, numbers, dashes, and slashes. We strip the leading directories which should be the path
 
     //no funky stuff
     var url = req.url.slice(1).replace(/[^a-zA-Z0-9\/-]/g, '-').toLowerCase();
     var paths = url.split('/');
-    if ( (paths.length <= 1) || (paths[0].length === 0) ) { // need at least two paths
+    if ( paths[0].length === 0) { 
     	_"reject"
         return;
     }
-    var repo = paths.shift() + '/' + paths.shift();
+    var repo = paths.shift(); 
     var folder = paths.join('/');
     if (folder) { 
         folder += '/';
