@@ -10,14 +10,15 @@ Here we setup the scripts and where they go. This section produces a shell scrip
     chmod +x githook.js
     cp githook.js ~/serving/githook.js
     pm2 restart githook
+    chmod +x pre-compile.sh
+    cp pre-compile.sh ~/serving/pre-compile.sh
     chmod +x compile.sh
     cp compile.sh ~/serving/compile.sh
     chmod +x run
-    cp run /usr/local/bin/run
+    cp run /usr/local/bin/ww-run
     chmod +x upload
-    cp upload /usr/local/bin/upload
-    chmod +x download
-    cp download /usr/local/bin/download
+    cp upload /usr/local/bin/ww-upload
+
     
 Less likely to change and more sensitive is the nginx file. It can be updated by `cp default /etc/nginx/sites-enabled` Need to learn more about nginx's workings.
     
@@ -26,10 +27,10 @@ Less likely to change and more sensitive is the nginx file. It can be updated by
     
  * [disperse.sh](# "save:")
  * [githook.js](#githook-server "save: ")
- * [compile.sh](#compile-script "save:")
+ * [pre-compile.sh](#compile-script:pull "save:")
+ * [compile.sh](#compile-script:compile-push "save:")
  * [run](#run "save: ")
  * [upload](#upload "save:")
- * [download](#download "save:")
 
 
 
@@ -336,20 +337,33 @@ The repos user has network access. It pulls in the repository, installs npm modu
 
 Then we switch to user litpro. This has no network access. It runs litpro typically unless there is the presence of scripts of the form run-i-pub/priv.sh  So a node process runs each of them and if pub is in place, them it becomes public. 
 
-    echo "repo $1 type-flag $2"
+[pull]()
+
+This pulls in the latest changes. Then the script reads the commit message and will do something back in node land code.
+
+    echo "repo $1"
     chown -RP repos $1
     echo "download phase"
-    su -s /bin/bash -l repos -c "cd $1; git pull; download"
-    echo "compile phase"
+    su -s /bin/bash -l repos -c "cd $1; git pull"
+    echo "git message"
+    su -s /bin/bash -l repos -c "git log -1 --pretty=%B"
+    
+    
+[compile push]() 
+
+Here we do the compiling and then do the pushing.
+
+    echo "compile phase repo $1 type $2"
     chown -RP lpuser $1
-    su -s /bin/bash -l lpuser -c "cd $1; run $2"
+    su -s /bin/bash -l lpuser -c "cd $1; ww-transfer pre $2"
+    su -s /bin/bash -l lpuser -c "cd $1; ww-run $2; ww-transfer post $2"
     echo "upload phase"
     chown -RP repos $1
-    su -s /bin/bash -l repos -c "cd $1; upload $1 $2"
+    su -s /bin/bash -l repos -c "cd $1; ww-upload $1 $2"
     echo "done"
 
 
-Maybe put the run script in usr/local/bin; the other two can be in repos homedir. All should start with `#!/usr/bin/env nodejs` and be chmod +x  to become executables.
+The scripts are in usr/local/bin. All should start with `#!/usr/bin/env nodejs` and be chmod +x  to become executables.
 
 
 ### Setting up the users
@@ -366,33 +380,6 @@ Note lpuser not having network access could be a good idea, but that requires so
 
 For lpuser to run npm install, it needs a home directory. Not sure why, but that is the way it seems to be. 
     
-### download
-
-This needs to parse various download files 
-
-    #!/usr/bin/env nodejs
-    _":script | jshint"
-
-[script]() 
-
-To meet the immediate need, we will create an s3 bucket with the files of interest. For now we will sync them, both to put them there and to get them out, but in the future, we will create a file uploader to the s3 bucket that will upload the files, backing up any ones that are redundant. The s3 bucket will be writeable by such a thing, but only readable by authorized user. So it is a drop-off, but not a pick-up.
-
-    var cp = require('child_process');
-    
-    var fullPath = process.argv[2];
-    repo = fullPath.split('/');
-    repo = repo[repo.length - 1] || 'null';
-    var com = 'cd ' + fullPath + '/downloads; aws s3 sync s3://' + repo + ' .';
-    cp.exec(com, function (err, stdout, stderr) {
-         if (err) {
-            console.error('Error in processing ' + com, err);
-         } else {
-            console.log('Processed ' + com, stdout, (stderr ? ('error: ' + stderr) : '' ));
-         }
-    });
-    
-    
-Still need to create page to save, maybe part of the editor functionality, `s3/repo-name` with a get giving the form and a post putting the object. No need for authorization as the storage is useless without access to server and/or repo.    
 
 
 ### upload
