@@ -303,7 +303,7 @@ We also have some code to try and prevent multiple files with the same name bein
             } else {
                 fname = file.name;
             }
-            var fname = fname.replace(/[^a-zA-Z0-9._-]/g, '\_').toLowerCase();
+            fname = fname.replace(/[^a-zA-Z0-9._-]/g, '\_').toLowerCase();
 
             console.log(file.name, fields[ind], fname, file.path);            
             var tempname = file.path;
@@ -395,7 +395,7 @@ All the files have been moved. We now construct the return object. We also write
         });
         report += '</ol>';
         report += '<p>Copy below into transfer.txt in repo.' +
-            ' The second column is the destination.</p>'
+            ' The second column is the destination.</p>';
         report += '<pre>\n';
         report += transferLines.join("\n");
         report += '\n</pre>';
