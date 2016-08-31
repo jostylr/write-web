@@ -244,7 +244,7 @@ Install githook server on 8081
 
 ### Githook server
 
-This will execute every time the webhook is triggered. We act on push events (compile, send to test) and release (compile, send to production). 
+This will execute every time the webhook is triggered. Each repository has a unique address, namely `webhook/repo-nickname`. Upon any connection to that, we run the relevant repo script. We first pull in the changes, running the commit message to see what kind, and then we run the compile. We do not care about any data being sent. 
 
     #!/usr/bin/env nodejs
     _":script | jshint"
@@ -255,48 +255,36 @@ This will execute every time the webhook is triggered. We act on push events (co
     var fs = require('fs');
     var cp = require('child_process');
     var path = "/root/public/";
+    
+    var typeExtraction = _"flag type";
 
     this.server = http.createServer( function( req, res ) {
-    var data = "";
-    if ( req.method === "POST" ) {
-      req.on( "data", function( chunk ) {
-        data += chunk;
-      });
-    } else {
-      data = {};
-    }
+       var begin = req.url.indexOf("webhook/") + length("webhook/");
+       var repo = req.url.slice(begin).replace(/[^a-z\/-]/g, "-");
+       var log = '';
+       var errorlog = '';
+       var fullpath = "/home/repos/" + repo;
+       cp.execFile("./pre-compile.sh", [fullpath, type], 
+           function (err, stdout, stderr) {
+             var type
+              if (err) {
+                 fs.appendFile(path + "errorlog.txt", err, function () {});
+              } else {
+                 log += stdout;
+                 errorlog += stderr;
+                 type = typeExtraction(log);
+                 cp.execFile("./compile.sh", [fullpath, type], _"compile time");
+              }
+           }
+       );  
+                 
 
+        res.writeHead( 200, {
+           'Content-type': 'text/html'
+        });
 
-    req.on( "end", function() {
-        var payload, type, repo, match;
-        try {
-          payload = JSON.parse( data);
-          type = req.headers['x-github-event'];
-          if ( (type !== "push") && (type !== "release") ) {
-        fs.appendFile(path + "badrequest.txt", req.rawHeaders, function() {});
-          } else {   
-             _":flag type"
-             repo = payload.repository.full_name.replace(/[^a-z\/-]/g, "-");
-             cp.execFile("./compile.sh", ["/home/repos/" + repo, type], function (err, stdout, stderr) {
-                 if (err) {
-                    fs.appendFile(path + "errorlog.txt", err, function () {});
-                  } else {
-                    fs.appendFile(path + "log.txt", "compiled " + repo + 
-                        " " + (new Date()).toUTCString()+"\n", function () {});
-                     fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
-                        stdout + (stderr ? "\nErr:\n" + stderr : ''), 
-                        function () {});
-                  }
-             });
-          }
-        } catch (e) {
-          fs.appendFile(path + "autolog.txt", "\n" + e+ "\n\n" + data + "\n----\n", function () {});
-        }
-          res.writeHead( 200, {
-              'Content-type': 'text/html'
-          });
-
-      res.end("<html><body><p>hook data received</p></body></html>", function () {});
+      res.end("<html><body><p>Compile request received</p></body></html>", 
+        function () {});
     });
 
     }).listen( 8081 );
@@ -313,6 +301,24 @@ If a commit has the syntax `:flagname` (code quotes included) then that gets add
                     type += ":" + match[1];
                 }
               }
+          }
+          
+[compile time]() 
+
+Here we deal with the results of the compile call. 
+
+    function (err, stdout, stderr) {                 
+        if (err) {
+           fs.appendFile(path + "errorlog.txt", log + "\n" + errorlog + "\n" + err,
+                function () {});
+        } else {
+            fs.appendFile(path + "log.txt", "compiled " + repo + 
+                 " " + (new Date()).toUTCString()+"\n", function () {});
+            fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
+                        stdout + (stderr ? "\nErr:\n" + stderr : ''), 
+                        function () {});
+                  }
+             });
           }
 
       
