@@ -292,8 +292,10 @@ This will execute every time the webhook is triggered. Each repository has a uni
       
 [flag type]()
 
-If a commit has the syntax `:flagname` (code quotes included) then that gets added to the type. Multiple colons allowed for multiple flags. A flag should be letters, numbers, and dashes.
+If a commit has the syntax `:flagname` (code quotes included) then that gets added to the type. Multiple colons allowed for multiple flags. A flag should be letters, numbers, and dashes. We have the last commit message coming after "git commit" 
 
+    function (out) {
+    
           if (type === "push") {
               if (payload.hasOwnProperty("head_commit") ) {
                 match = payload.head_commit.message.match(/\`\:((?:[A-Za-z0-9][A-Za-z0-9-]*\:?)+)\`/);
@@ -315,11 +317,11 @@ Here we deal with the results of the compile call.
             fs.appendFile(path + "log.txt", "compiled " + repo + 
                  " " + (new Date()).toUTCString()+"\n", function () {});
             fs.writeFile(path + repo.replace("/", "-") + ".txt", "OUT:\n " + 
-                        stdout + (stderr ? "\nErr:\n" + stderr : ''), 
-                        function () {});
-                  }
-             });
-          }
+                 log + stdout + 
+                    (errorlog + stderr ? "\nErr:\n" + errorlog + stderr : ''), 
+                    function () {});
+        }
+    }
 
       
 ### Manual trigger
