@@ -82,8 +82,11 @@ And do renewals:
 
     sudo crontab -e
 
-    00 1 * * 1 /opt/letsencrypt/letsencrypt-auto renew >> /var/log/letsencrypt-renewal.log
-    30 1 * * 1 /bin/systemctl reload nginx
+    00 0 23 */2 * /bin/systemctl stop nginx
+    01 0 23 */2 * /opt/letsencrypt/letsencrypt-auto renew >> /var/log/letsencrypt-renewal.log
+    05 0 23 */2 * /bin/systemctl start nginx
+    
+This sets up a cronjob that every 60 days will renew the certificates. It first stops nginx, then renews the certs, then restarts nginx. This is kind of a manual way of doing things; an nginx plugin could probably ease the process. 
 
 Install nginx, create sites, getting rid of default
 
@@ -583,6 +586,3 @@ This creates flags that get passed along to the litpro. The plain push flag has 
             flags = "";
         }
     }
-
-
-
