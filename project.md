@@ -1,14 +1,179 @@
-# Write-web
+# Write-web layout
 
-The idea of this project is to setup my own personal server that allows my repositories to become anything.
+This is the main project layout file. This loads up the various literate
+programs that make up this project, including compiling the examples and
+tests. 
 
-This is the master literate program that compiles all the different pieces for
-getting writeweb.net up and running. 
+At its core, this is a server implementation. It is setup to have specific
+flows in and out of it which allows the server to recede into the background
+with a particular use of the server allowing the development to be mainly on
+the front end, particularly with CSS doing most of the heavy lifting. This is
+CSS Zen Garden taken to its logical extreme. And, after all, the appearance is
+what most people will judge a site on with the behavior only being a factor if
+that behavior is bad. 
 
-The goal of writeweb.net is to introduce the world of light sites to the
-masses in an easy and cheap way. Ideally, it should be almost as easy as
-editing a few simple markdown documents of content and clicking on a link. 
 
-* [scripts](scripts.md "load:")  This a series of scripts for setting up the server and running it. 
-* [editor](editor.md "load:")  This allows for the editing of the respositories and upload files directly to it.
-* [save](save.md "load:") This is the file uploader for getting files into s3.
+## Server
+
+The server is created in [server](server.md "load:") It creates a nodejs
+module that should be required. It returns a function whose single argument to
+it should be an options object that sets up whatever the function requires. 
+
+
+### CSV
+
+A separate piece is the [csv](csv.md "load:") loading. It is encapsulated under an interface
+that can be overwritten. Every attempt was made to make it compatible with
+"upgrading" to a proper relational database if scale exceeds the target
+threshold of this server.
+
+
+### JSON
+
+The main work of the server is to serve and receive [json](json.md "load:").
+The file that is loaded has a browser component and a server component. These
+work in tandem. On the browser side, this uses the Fetch methods to allow for
+off-line work with an AJAX fallback. 
+
+
+We also allow for programmatic access, such as with CURL or another server.
+This is basically the same, but access control is a little different since it
+is not done with cookies, but rather with the JSON itself. 
+
+
+### Transformations
+
+Often data coming in will need to be checked and or transformed. This is all
+rolled into one thing. Some of this, such as converting markdown to html, uses
+a package to do the work and then does something with the items, potentially
+saving it as a file and noting the locations. 
+
+Other times, this needs to be specified with the initialization. 
+
+Instructions and setup can be found in 
+[transformations](transformations.md "load:")
+
+
+### Backup
+
+A quick script for the backup procedure using [git](git.md "load:")
+
+Essentially, if a csv file is stored in a git repository (checked upon
+startup), then changes to it will be committed, ideally with a commit message
+associated with it. 
+
+
+### Access Control
+
+Access control is important for this. We have a baked in user setup and an
+[access](access.md "load:") control setup.
+
+This uses bcrypt for encryption of passwords. 
+
+We use a http-only cookie to store the access token to avoid xss. If it is
+programmatic access, then we don't use a cookie, but rather put it in the JSON
+object. 
+
+
+### File Upload
+
+We also deal with [file](file.md "load:") uploads. This takes in files and
+streams them immediately into a unique file name. This gets returned to the
+user to be associated with other data.   
+
+We also allow for processing files during the upload process. 
+
+This is one of those spots that need to be watched for scaling issues. 
+
+We also allow for backing up the files to somewhere else, such as Amazon s3. 
+
+This also includes file sending as part of a JSON thing (encoded). ???? Maybe
+just the scrambled ids? Maybe intercept that with a fetch to replace it with
+the desired name. 
+
+
+### Filter
+
+We allow for [filter](filter.md "load:")ing of the information before being sent. It is the same
+code as the filtering that happens in the browser. 
+
+This can be both removing entire rows as well as filtering what about rows is
+returned. Ideally, this is not needed for small scale, but for some data it
+needs to be weeded out. 
+
+
+### Events
+
+We also do [event](event.md "load:") logging. This will record events that
+match criteria in a log file, generally by day. One can have multiple event
+logs for different criteria, but it is probably simpler to just have all
+the events in one file. 
+
+Events will get backed up at the end of the day if it is in a git repository,
+but it is not backed up during the day. 
+
+### Static Server
+
+This server does not serve static assets, at least not by a typical process
+(it can send stuff by JSON to a fetch that will translate it into an asset;
+this is for private areas). Instead, the idea is that if the data is creating
+static content, then that content gets pushed elsewhere, either by sftp or s3
+or git pages hosting. 
+
+This is handled by [static](static.md "load:")
+
+### Email
+
+This setup can also handle being a middle-person for [email](email.md "load:"), using mailgun. 
+
+The idea is to both receive and send email as well as maintain lists.  
+
+### Websockets
+
+This enables push notifications. It should enable chats as well as
+notifications and auto updating of data. This uses [websocket](websocket.md "load:") technology.  
+
+
+### RSS
+
+This covers not only RSS, but also custom hooks, both receiving and sending
+them. 
+
+Check out [rss](rss.md "load:")
+
+
+### SMS
+
+It would be cool to connect up into SMS and maybe other APIs. 
+
+## Browser
+
+For the browser, we have some default structures that get bundled into a
+javascript. It is plain vanilla, for the most part.
+
+It all is orchestrated from [browser](browser.md "load:")
+
+### Fetch
+
+This implements the sending and retrieval of the data, as described in
+[fetch](fetch.md "load:")
+
+
+### Structure
+
+This is where the basic [structure](structure.md "load:") is defined with the
+incoming data. The idea is that it should be easily stylable with CSS. 
+
+### Edit
+
+We want to be able to [edit](edit.md "load:") data in the browser. This
+handles a bit of those mechanics. 
+
+Related to this is data validation, which happens in both the browser and the
+server. 
+
+There are also hooks for custom form/text transformation. In particular, the
+idea is to support text area writing of data in some custom dsl and then
+transform it into records to be sent.  
+
+

@@ -1,44 +1,29 @@
 {
-  "name": "basic-website",
-  "description": "plain website",
+  "name": "write-web",
   "version": "0.1.0",
-  "homepage": "https://github.com/jostylr/basic-website",
-  "author": {
-    "name": "James Taylor",
-    "email": "jostylr@gmail.com"
+  "description": "A server and helpers for easy small servers",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jostylr/basic-website.git"
+    "url": "git+https://github.com/jostylr/write-web.git"
   },
+  "keywords": [
+    "server",
+    "csv"
+  ],
+  "author": "James Taylor",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jostylr/basic-website/issues"
+    "url": "https://github.com/jostylr/write-web/issues"
   },
-  "license": "MIT",
-  "main": "index.js",
-  "engines": {
-    "node": ">=0.12"
-  },
-  "dependencies":{
-    
-  },
-  "devDependencies" : {
-    "litpro" : "^0.11.1",
-    "cheerio" : "^0.19.0",
-    "markdown-it" : "^4.4.0",
-    "markdown-it-anchor" : "^2.3.0",
-    "jade" : "^1.11.0",
-    "postcss" : "^5.0.4",
-    "autoprefixer" : "^6.0.0",
-    "gm" : "^1.18.1",
-    "pdf-image" : "^1.0.1",
-    "mailhide" : "^0.1.1",
-    "tiny-csv" : "^2.0.0"
-  },
-  "scripts" : { 
-    "test" : "node ./test.js"
-  },
-  "keywords": ["literate programming"],
-  "private": true
-
+  "homepage": "https://github.com/jostylr/write-web#readme",
+  "dependencies": {
+    "formidable": "^1.2.1"
+  }
 }
