@@ -177,3 +177,17 @@ idea is to support text area writing of data in some custom dsl and then
 transform it into records to be sent.  
 
 
+
+## Conventions
+
+This project uses some conventions. 
+
+1. `$varname` is used for async/promise/generator functions. The dollar sign
+   is because these are expensive functions. 
+2. For nodelists or other jquery style objects, we can use `varname$`. 
+3. `$` and `$$` in the browser represent query selector stuff. 
+4. CSV files are actually pipe-delimited. This allows for stringifying arrays
+   and json objects without lots of collisions. 
+
+
+

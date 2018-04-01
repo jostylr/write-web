@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/jostylr/write-web#readme",
   "dependencies": {
-    "formidable": "^1.2.1"
+    "csv": "^2.0.0",
+    "formidable": "^1.2.1",
+    "uid-generator": "^1.0.0"
   }
 }

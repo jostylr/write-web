@@ -19,7 +19,7 @@ The idea is that the initialization defines what data to load by default
 
     const http = require('http');
 
-    const handler = async function (req, res)  {
+    const $handler = async function (req, res)  {
         if (req.method === 'OPTIONS' && init.dev) {
            response.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
         }
@@ -40,7 +40,7 @@ The idea is that the initialization defines what data to load by default
         }
     };
 
-    http.createServer(handler).listen(init.port || 3000);
+    http.createServer($handler).listen(init.port || 3000);
 
 
 ## JSON
@@ -129,6 +129,9 @@ We use
 
 * [Formidable](https://github.com/felixge/node-formidable)  This is the
   standard in file uploads. Not going to get into it on my own. 
+* [uid-generator](https://www.npmjs.com/package/uid-generator). Generates
+  UIDs for tokens. See access token. 
+  
 
 ---
 
@@ -136,6 +139,9 @@ We use
     const path = require('path');
 
     const formidable = require('formidable'); 
-   
+
+    //accesss::token
+    const UIDGenerator = require('uid-generator');
+    const uidgen = new UIDGenerator(); // Default is a 128-bit UID encoded in base58
 
 

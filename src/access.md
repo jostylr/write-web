@@ -21,6 +21,9 @@ be defined:
    that role in role.csv. Everything else is defined here. 
 4. notification.csv This is a notification control panel for users. Very
    important to get right. 
+5. tokens.csv a transitory file not to be saved in version control(?). It
+   contains user ids tied to two arrays: one for access tokens and one for the
+   expiration date. Their locations 
 
 
 ## CSV headers
@@ -29,6 +32,8 @@ be defined:
     role.csv role, [@user] 
     access.csv resource, action, [@user], [@role]
     notification.csv @user, resource, action, type
+    tokens.csv @user, [token], [date]
+
 
 A resource is a description that locates what is allowed. It can be a csv file
 or a whole directory or a row in a file or a condition that needs to be met on
@@ -40,15 +45,16 @@ row of any table matching `thread#`,
 Here we need to generate a token, save a token, deal with expiring tokens, and
 validate a token, maybe refreshing a token. 
 
-    const tokens = ( 
+The data structure is `uid, [tokens], [dates]` where each entry in tokens
+corresponds to a date entry. Saving and loading should be handled just fine by
+standard CSV operations. 
 
-    const makeToken = _":make";
-    const dateToken = _":date";
-    const validToken = _":valid";
 
-    const checkAllTokens = _":check all";
+    tokens.$valid = _":valid"; 
+    tokens.date = _":date";
+    tokens.$make = _":make"; 
+    tokens.check = _":check";
 
-    const saveTokens = _":save";
 
 [valid]() 
 
@@ -59,14 +65,14 @@ Otherwise, it returns false to indicate further defaulting.
 
 
     async function ( [uid, token], res) {
+        let tokens = this;
         if !(uid && token) {
             return false;
         }
-        uid = parseInt(uid, 10);
         let ind;
         if ( (tokens[uid]) && 
             ( (ind = tokens[uid][0].indexOf(token))  !== -1) &&
-            ( await dateToken(uid, ind, res) ) {
+            ( await tokens.$date(uid, ind, res) ) {
             return uid;
         } else {
             return false;
@@ -87,44 +93,81 @@ ms. Here we update the tokens.
 We log the change. 
 
     async function (uid, ind, res) {
-        let age = init.age;
-        let tokenDate = tokens[uid][1][ind];
+        let tokens = this;
+        let tokenDate = parseInt(tokens[uid][1][ind], 10);
         let currentDate = Date.now();
         if (currentDate > tokenDate) {
-            deleteToken(uid, ind); 
+            tokens.delete(uid, ind); 
             return false;
         } else {
             if ( (currentDate + age*800) > tokenDate) {
-                let toke = await makeToken();
-                let future = currentDate + age*1000;
-                addToken(uid, ind, toke, future);
-                setCookie(res, uid, toke, age );
+                let {token, future} = await makeToken();
+                tokensreplaceToken(uid, ind, token, future);
+                setCookie(res, uid, token, age );
             }
             return true;
         }
     }
 
-[make]()
 
-Using [uid-generator](https://www.npmjs.com/package/uid-generator)
+
+[make]()
+ 
+Making a token is as easy as calling the UID generator, calculating the age,
+and returning it all. If a different age then the initial one is desired, it
+can be passed in. 
+
+    function (age = init.age) {
+        let tokens = this;
+        let token = await uidgen.generate(); // -> 'B1q2hUEKmeVp9zWepx9cnp'
+        let future = currentDate + age*1000;
+        return {token, future};
+    }
+
+
 
 [check all]()
 
-[save]() 
+Here we go through the tokens and invalidate any tokens that are too old. This
+should be run before saving the tokens. 
+
+We look through each uid and look for bad dates. We the splice remove them. We
+count down in the inner loop so that splicing doesn't mess up the next item we
+look at. 
+
+    function () {
+        let tokens = this;
+        let i, n = tokens.length;
+        let currentDate = Date.now();
+        for (i = 1; i < n; i += 1) {
+            let tokes = tokens[i][0];
+            let dates = tokens[i][1];
+            let j, m = dates.length;
+            for (j = m-1; m > -1; m -= 1) {
+                if ( parseInt(dates[m], 10) > currentDate) {
+                    tokens.delete(uid, 
+                }
+        }
 
 
-[add token]()
+[replace token]()
 
+This is simply adding on a token and a date in the corresponding places. 
 
-    function (
-        tokens[uid][0][ind] = toke;
-        tokens[uid][1][ind] = future 
-        log(["token update", uid, ind, toke, future].join(","));
+    function (uid, ind, token, future) {
+        let tokens = this;
+        tokens[uid][0][ind] = token;
+        tokens[uid][1][ind] = future;
+        log.state(["tokens", "update", uid, ind, token, future].join(","));
+    }
 
 
 [delete token]()
 
+This is deleting a token without replacing it. 
 
+
+        let tokens = this;
 
 
 
