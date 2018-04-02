@@ -9,6 +9,7 @@ The idea is that the initialization defines what data to load by default
 
 
     _"modules"
+    _"safepath"
     
     _"access::cookie"
 
@@ -104,10 +105,7 @@ We start by eliminating the possibility of paths going beyond the desired
 directory; the normalize command shifts all `..` to the front. Once we have
 that, we call matchPath with the access 
 
-    let pname = path.
-        normalize(url.parse(req.url).pathname).
-        replace(/^(\.\.[\/\\])+/, '');
-
+    let pname = safepath(req.url);
     let [rep, rest] = matchPath(pname);
     let valid = access(rep, 'r', user);
     if (internal) {
@@ -117,7 +115,15 @@ that, we call matchPath with the access
     }
    
     
+## Safe Path
 
+This creates a safe path for a file name
+
+    const safepath = (fname) => {
+        return path.
+            normalize(url.parse(fname).pathname).
+            replace(/^(\.\.[\/\\])+/, '');
+    };
 
 
 
