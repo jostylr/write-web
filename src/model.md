@@ -52,24 +52,26 @@ scale (otherwise, we can stick with csv).
 ## Core
 
     const Model = {
+        tables : new Set(), 
         models : {
         },
-        async $load(fname = '', 
-        async $join(name, parents=[], options={}) { _"join"
+        async $load(table = '') { _"load"
         },
-        create(name, rows=[]) {_"create"
+        async $join(table, parents=[], options={}) { _"join"
         },
-        read(name, find='*', filter='*') {_"read"
+        async $create(table, rows=[]) {_"create"
         },
-        update(name, rows=[]) {_"update"
+        async $read(table, find='*', filter='*') {_"read"
         },
-        delete(rows=[]) {_"delete"
+        async $update(table, rows=[]) {_"update"
         },
-        save() {_"save"
+        async $delete(table, rows=[]) {_"delete"
         },
-        log() {_"log"
+        async $save(table) {_"save"
         },
-        error(name, data), {_"error"}
+        async $log(table) {_"log"
+        },
+        async $error(name, data), {_"error"}
     };
 
 ## Load
@@ -85,31 +87,112 @@ locate the desired headings when needed.
 
     _":path checking"
 
-    let arrs = csv.load(fname);
-    const head = arrs.shift();
-    const headers = {};
-    head.forEach( (heading, ind) {
-        headers[heading] = ind;
-    });
+    try {
+        let arrs = await csv.$load(table);
+        const headrow = arrs.shift();
+        const headers = {};
+        head.forEach( (heading, ind) {
+            headers[heading] = ind;
+        });
 
-    return (Model.models[name] = { headers, head,  arrs});
+        return (Model.models[table] = { headers, headrow,  arrs});
+    } catch (e) {
+        Model.error('load', `table ${table} failed to load`, e); 
+        throw Error(e);
+    }
+
     
 [path checking]()
 
 We check for an empty name as well as normalize the path to keep it safe. 
 
+For a table name to be valid it should be in the tables column. Generally,
+this is loaded with access.csv loading. 
 
-    fname = safepath(fname); 
+We check for the existence of the table before path checking because we want
+to call load a lot and make it return quickly. We check again after the path
+has been normalized. This also allows for join tables to have funky names. 
 
-    if (!fname) {
-        Model.error('load', 'no file name provided');
-        return false;
+We use a `.` in front of a table name to indicate a join table. 
+
+    if (Model.models.hasOwnProperty(table)) {
+        return Model.models[table];
+    }
+    
+    //
+    if (table[0] === '.') {
+        table = table.slice(1);
+        let joins = Mode.joins[table];
+        try {
+            return Model.$join(table, joins[0], joins[1]);
+        } catch (e) {
+            Model.error('load', `table joining failed .${table}`, e);
+            throw Error(e);
+        } 
+    }
+
+    table = safepath(table); 
+
+    if (! Models.tables.has(fname) ) {
+        Model.error('load',  `table ${fname} does not exist`);
+        throw Error(e);
+    }
+
+    if (Model.models.hasOwnProperty(table)) {
+        return Model.models[table];
     }
     
 
+    
 
     
 ## Join
+
+The join function takes multiple tables and joins them and filters/transforms
+the row entries. 
+
+It expects a table name and a parents array. It also takes an options object:
+
+* `join` Evaluates each combination of rows and decides whether to accept or
+  reject them. Default: join on headers with the same name. If no common name,
+  then all rows match (not a good idea).
+* `headers` This is an array that lists the desired headers in the output, in
+  the desired order. Any header that does not appear on this list does not
+  appear in the result (whitelist). If none is provided, this is constructed
+  from the parent ordering of the orders and skips any repeat headers. If a
+  filter is provided, this should be as well, but if it is not, it will use
+  this algorithm, but also skip any headers not present in the filtered
+  result. 
+* `filter` This can filter and transform the rows. The input into the function
+  is an array of matched rows, one entry per parent. The filter should return
+  an object with the heading map to value. This is then converted into a row
+  per the ordering, but this is done after the filtering. 
+* `create`, `update`, `delete` are somewhat inappropriate on joins, but they
+  are useful nonetheless. One can provide these optional functions to enact
+  these operations on the parents. 
+
+And now here is the function. We first load all the parent tables. The load
+function returns the actual parents. Join objects also have the raw row ids as
+the id; these are in parent order and is how these rows are referenced. 
+
+    if (Model.models.hasOwnProperty(table)) {
+        return Model.models[table];
+    }
+
+    parents = await Promise.all(parents.map( (par) => Model.$load(par) )); 
+
+    _":defaults"
+
+    return Model.models[table] = 
+
+
+[defaults]()
+
+    const join = options.join || (rows) => {
+            
+    };
+
+
 
 ## Create
 
