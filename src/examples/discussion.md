@@ -12,7 +12,7 @@ We need csv files for:
 
 !board.csv  name, [@thread], creator@user, @rating, date%:
 !thread.csv description, @board, @user, file, @rating, [@group], date%:
-!rating.csv file, id#, flags#, up#, down#
+!rating.csv @@table, id#, flags#, up#, down#
 !user.csv @uid, [@groups], [@boards], [@threads], posts[[file, thread]], ratings[[file, id, type]]
 !activity.csv @user, activity[file, id#, type, date%:]
 thread#.csv content, @user, date%:, parent#, @rating

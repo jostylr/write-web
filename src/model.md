@@ -113,7 +113,12 @@ We check for the existence of the table before path checking because we want
 to call load a lot and make it return quickly. We check again after the path
 has been normalized. This also allows for join tables to have funky names. 
 
-We use a `.` in front of a table name to indicate a join table. 
+We use a `.` in front of a table name to indicate a join table. If the join
+table does not exist and is not defined in the joins, then there will be an
+error in processing and the error will throw (the joins[0] will error in that
+case). 
+
+
 
     if (Model.models.hasOwnProperty(table)) {
         return Model.models[table];
@@ -121,12 +126,11 @@ We use a `.` in front of a table name to indicate a join table.
     
     //
     if (table[0] === '.') {
-        table = table.slice(1);
         let joins = Mode.joins[table];
         try {
             return Model.$join(table, joins[0], joins[1]);
         } catch (e) {
-            Model.error('load', `table joining failed .${table}`, e);
+            Model.error('load', `table joining failed ${table}`, e);
             throw Error(e);
         } 
     }
@@ -149,7 +153,7 @@ We use a `.` in front of a table name to indicate a join table.
 ## Join
 
 The join function takes multiple tables and joins them and filters/transforms
-the row entries. 
+the row entries. The join function should not be called directly; call load. 
 
 It expects a table name and a parents array. It also takes an options object:
 
@@ -173,11 +177,10 @@ It expects a table name and a parents array. It also takes an options object:
 
 And now here is the function. We first load all the parent tables. The load
 function returns the actual parents. Join objects also have the raw row ids as
-the id; these are in parent order and is how these rows are referenced. 
+the id; these are in parent order and is how these rows are referenced. If the
+joining puts multiple rows combined into one, then the ids are put in as an
+array. 
 
-    if (Model.models.hasOwnProperty(table)) {
-        return Model.models[table];
-    }
 
     parents = await Promise.all(parents.map( (par) => Model.$load(par) )); 
 
