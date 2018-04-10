@@ -195,6 +195,12 @@ We call the cookie 'access' and have it be of the form `user id number:token`.
 ## Password
 
 Here we handle the password material. This uses the bcrypt module with a salt
-round of 11. 
+round of 12. This should take about half a second. 
+
+    const $passHash = async function (user, secret) {
+        await bcrypt.hash(secret, 12);
+    }
+
+    const $passComp = asynch function(
 
     

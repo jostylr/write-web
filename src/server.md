@@ -150,4 +150,10 @@ We use
     const UIDGenerator = require('uid-generator');
     const uidgen = new UIDGenerator(); // Default is a 128-bit UID encoded in base58
 
+    //access::password
+    const bcrypt = require('bcrypt');
+    _"access::password"
+
+    
+
 
