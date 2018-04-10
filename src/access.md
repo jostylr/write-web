@@ -192,3 +192,9 @@ We call the cookie 'access' and have it be of the form `user id number:token`.
 
 
 
+## Password
+
+Here we handle the password material. This uses the bcrypt module with a salt
+round of 11. 
+
+    
