@@ -197,10 +197,43 @@ We call the cookie 'access' and have it be of the form `user id number:token`.
 Here we handle the password material. This uses the bcrypt module with a salt
 round of 12. This should take about half a second. 
 
-    const $passHash = async function (user, secret) {
-        await bcrypt.hash(secret, 12);
-    }
 
-    const $passComp = asynch function(
+To change the password, one is already logged in and known. The id number is
+used in this case. 
+
+    const $passHash = async function (id, newpass) {
+        try {
+            const pwd = await bcrypt.hash(secret, 12);
+            const status = await Model.$update('users', {id, pwd});
+            return status;
+        } catch (e) {
+            error(e);
+            return 0;
+        }
+    };
+
+The authentication function does not know the userid. It gets a user name and
+and a password and it is trying to verify that it works. No information should
+be given about existence of user. 
+
+    const $passAuth = async function (user, incomingpass) {
+        try {
+            const pwd = await Model.$read('user', {user}, 'pwd');
+            if (pwd) {
+                let res = await bcrypt.compare(incomingpass, pwd); 
+                if (res) {
+                    return true;
+                } else {
+                    failedLogin(user, incomingpass, 'incorrect password');
+                }
+            } else {
+                failedLogin(user, incomingpass, 'no user');
+                return false;
+            }
+        } catch (e) {
+            error(e);
+            return 0;
+        }
+    }
 
     
