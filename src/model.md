@@ -27,7 +27,9 @@ the row(s) and returns id(s).
 b. Read (find, filter) This takes in a find function or finding string to
 narrow the records and a filter function or string that affects what values
 are returned (and it can transform them). The function forms expect a row; the
-find will return true or false; the filter returns a row. 
+find will return true or false; the filter returns a row. find and filter can
+also be objects; the keys should match the headers and the value can be a find
+string. 
 c. Update ([rows]/row) Each row must contain an id along with the rest of the
 info. 
 d. Delete ([row ids]/row id) Just an id or ids. 

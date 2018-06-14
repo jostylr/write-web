@@ -20,12 +20,27 @@ module that should be required. It returns a function whose single argument to
 it should be an options object that sets up whatever the function requires. 
 
 
-### CSV
+### Database
 
-A separate piece is the [csv](csv.md "load:") loading. It is encapsulated under an interface
-that can be overwritten. Every attempt was made to make it compatible with
-"upgrading" to a proper relational database if scale exceeds the target
-threshold of this server.
+A separate piece is the [data](data.md "load:"). We employ three pieces:
+
+a) [AragonDB](https://www.arangodb.com/). This is a document and graph
+database. This allows for flexible modeling of entities (document store) while
+also maintaining relationships (graph part). Advantage over SQL (which can do
+the same roughly) is querying 
+[length relations between vertices](https://medium.com/@neunhoef/graphs-in-data-modeling-is-the-emperor-naked-2e65e2744413#.x0a5z66ji)
+
+This is the model of long-lasting what is.
+
+b) [Redis](https://redis.io/). This is a fast in-memory key-value. It
+represents quick storage, such as session tokens and caches. It can do more,
+but that's the best use case. 
+
+c) Event logging. This records both transitory events as well as the longer
+term storage into the lasting database. On a defined interval, this is a file
+with the events since the last backup dump allowing us to step through the
+events. 
+
 
 
 ### JSON
@@ -56,11 +71,15 @@ Instructions and setup can be found in
 
 ### Backup
 
-A quick script for the backup procedure using [git](git.md "load:")
+Some default backup options
 
-Essentially, if a csv file is stored in a git repository (checked upon
-startup), then changes to it will be committed, ideally with a commit message
-associated with it. 
+a) Setting the db dump backup and storing it somewhere, such as glacier. 
+b) Storing the event logs, either in git or in cloud storage.
+c) Creating the output versions of stuff (say rendered webpages) and storing
+them in git. This allows for a quick overview of the implications of each
+change. 
+
+
 
 
 ### Access Control
@@ -184,10 +203,30 @@ This project uses some conventions.
 
 1. `$varname` is used for async/promise/generator functions. The dollar sign
    is because these are expensive functions. 
-2. For nodelists or other jquery style objects, we can use `varname$`. 
-3. `$` and `$$` in the browser represent query selector stuff. 
-4. CSV files are actually pipe-delimited. This allows for stringifying arrays
-   and json objects without lots of collisions. 
+2. For nodes/nodelists or other jquery style objects, we can use
+   `varname$`/`varname$$`. 
+3. `$` and `$$` in the browser represent query selector stuff.  
 
+
+---
+
+Alternative way of viewing all this. 
+
+1. First load is static assets delivered by nginx. This is frontend design.
+   Not much help from this.
+2. Depending on the page, a login may be required. This is a form element that
+   gets converted to JSON and sent through nginx to node server. Node server
+   parses the login, verifies, sends authentication token in https-only
+   cookie. Authentication token is stored in Redis with an expiration date set
+   in a config somewhere, maybe by user, whatever.
+3. Inputs can be page requests for public assets (nginx), JSON requests (crud
+   options, node), or file uploads (node). File uploads for appropriately
+   credentialed people are automatically saved under a new name and that name
+   is returned to the browser, to be included in a JSON request. Depending on
+   the request and permissions, the file may be moved, renamed, made public,
+   given access to others, etc. 
+4. Inputs for c,u, can lead to the generation of rendered pages, to be served
+   by nginx if public or by a request served from redis cache/filesystem,
+   depending. 
 
 
