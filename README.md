@@ -2,20 +2,13 @@
 
 Write-web is a set of scripts and other resources that allow for simple
 dynamic web hosting. This is deployed by the author on Digital Ocean, but any
-platform that allows the use of nodejs on it should be fine. 
+platform that allows the use of nodejs and arrangodb on it should be fine. 
 
 The concept of this project is to abstract away the commonalities of most
 dynamic websites into a few simple conventions. Specifically: 
 
-1. Data is stored in tabular fashion. Typically this is a relational database
-   such as postgresql. However, for small sites, the transparency and ease of
-   CSV files is more important than scaling. Thus, in this project, we use CSV
-   files. This is good for sites serving hundreds, maybe thousands, but not
-   much more than that. Every effort has been made to write it in such a way
-   that transforming it into a database should be relatively straightforward.
-   A future version of this project may incorporate that directly. 
-2. Version control of csv data using git. The backup can be hosted in a
-   private repository such as on bitbucket or github.
+1. Data is stored in tabular fashion. We are using arangodb for the database.
+2. Version control is implemented 
 3. Baked in users and access control lists. While the passwords are encrypted,
    every effort should be made to ensure users are not reusing the password
    anywhere. 
